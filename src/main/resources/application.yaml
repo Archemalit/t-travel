@@ -4,7 +4,7 @@ spring:
   config:
     import: optional:file:.env.local[.properties]
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/postgres}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5732/postgres}
     username: ${DATABASE_USERNAME:user}
     password: ${DATABASE_PASSWORD:pass}
     driver-class-name: org.postgresql.Driver
@@ -12,7 +12,7 @@ spring:
     enabled: false
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     open-in-view: false
     show-sql: true
 
