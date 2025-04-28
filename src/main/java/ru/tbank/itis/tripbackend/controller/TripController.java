@@ -23,7 +23,7 @@ public class TripController {
     }
 
     @GetMapping("/{id}")
-    public TripDto getTripById(@PathVariable Long id) {
+    public TripDto getTripById(@PathVariable("id") long id) {
         return tripService.getTripById(id);
     }
 
