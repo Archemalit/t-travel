@@ -10,7 +10,7 @@ import ru.tbank.itis.tripbackend.service.TripService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/trips")
+@RequestMapping("/api/v1/trips")
 @RequiredArgsConstructor
 @Log4j2
 public class TripController {
