@@ -42,11 +42,6 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(jwtPair.accessToken(), jwtPair.refreshToken());
     }
 
-    @Override
-    public SimpleResponse logout() {
-        refreshTokenRepository.deleteByToken()
-    }
-
 //    @Override
 //    public AuthResponse login(UserLoginRequest request) {
 //        User user = userRepository.findUserByPhoneNumber(request.phoneNumber())
@@ -58,10 +53,5 @@ public class AuthServiceImpl implements AuthService {
 //
 //        JwtTokenPairDto jwtPair = jwtService.getTokenPair(request.phoneNumber());
 //        return new AuthResponse(jwtPair.accessToken(), jwtPair.refreshToken());
-//    }
-//
-//    @Override
-//    public AuthResponse refresh(RefreshTokenRequest request) {
-//        return null;
 //    }
 }
