@@ -26,7 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public JwtTokenPairDto login() {
+    public JwtTokenPairDto login(@RequestBody @Valid UserLoginRequest request) {
         return null;
     }
 
