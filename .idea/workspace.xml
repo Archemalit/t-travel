@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="cace6317-2775-4733-bc64-72e9706ecce6" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/dictonary/UserRole.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/dictionary/UserRole.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/dictonary/UserStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/dictionary/UserStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/event/ApplicationReadyEventListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/event/ApplicationReadyEventListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/model/Trip.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/model/Trip.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/service/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/tbank/itis/tripbackend/service/AuthServiceImpl.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2wVe2yHKu9AalH7BWPlE7COwTAI" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "feature/TBPT2-10",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="ru.tbank.itis.tripbackend.mapper" />
+      <recent name="ru.tbank.itis.tripbackend.dto" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="TripBackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="trip-backend.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="ru.tbank.itis.tripbackend.TripBackendApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="cace6317-2775-4733-bc64-72e9706ecce6" name="Changes" comment="" />
+      <created>1746130968453</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1746130968453</updated>
+      <workItem from="1746130974212" duration="14160000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

@@ -3,9 +3,11 @@ package ru.tbank.itis.tripbackend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
-import ru.tbank.itis.tripbackend.dictonary.UserRole;
+import ru.tbank.itis.tripbackend.dictionary.UserRole;
 
-import static jakarta.persistence.EnumType.STRING;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -29,9 +31,18 @@ public class User {
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
-    @Enumerated(STRING)
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @OneToMany(mappedBy = "creator", fetch = FetchType.LAZY)
+    private List<Trip> createdTrips;
+
+    @OneToMany(mappedBy = "paidBy", fetch = FetchType.LAZY)
+    private List<Expense> paidExpenses;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Notification> notifications = new HashSet<>();
 }
