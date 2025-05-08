@@ -1,20 +1,24 @@
 package ru.tbank.itis.tripbackend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-@Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Accessors(chain = true)
 @Table(name = "trips")
 public class Trip {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,4 +37,21 @@ public class Trip {
 
     @Column(nullable = false, name = "total_budget")
     private Double totalBudget;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator;
+
+    @OneToMany(mappedBy = "trip", fetch = FetchType.LAZY)
+    private List<Expense> expenses;
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
+    private Set<TripParticipant> participants = new HashSet<>();
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
+    private Set<Debt> debts = new HashSet<>();
+
+    @OneToMany(mappedBy = "trip")
+    private Set<Notification> notifications = new HashSet<>();
+
 }

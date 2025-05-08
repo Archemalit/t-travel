@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import ru.tbank.itis.tripbackend.dictonary.UserRole;
+import ru.tbank.itis.tripbackend.dictionary.UserRole;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
 
