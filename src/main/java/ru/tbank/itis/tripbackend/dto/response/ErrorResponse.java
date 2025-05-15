@@ -1,4 +1,4 @@
-package ru.tbank.itis.tripbackend.dto;
+package ru.tbank.itis.tripbackend.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
