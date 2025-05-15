@@ -1,4 +1,4 @@
-package ru.tbank.itis.tripbackend.dictonary;
+package ru.tbank.itis.tripbackend.dictionary;
 
 public enum UserStatus {
 
