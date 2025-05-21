@@ -38,7 +38,7 @@ public class Trip {
     @Column(nullable = false, name = "total_budget")
     private Double totalBudget;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
@@ -51,7 +51,7 @@ public class Trip {
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
     private Set<Debt> debts = new HashSet<>();
 
-    @OneToMany(mappedBy = "trip")
-    private Set<Notification> notifications = new HashSet<>();
+//    @OneToMany(mappedBy = "trip")
+//    private Set<Notification> notifications = new HashSet<>();
 
 }

@@ -43,6 +43,6 @@ public class User {
     @OneToMany(mappedBy = "paidBy", fetch = FetchType.LAZY)
     private List<Expense> paidExpenses;
 
-    @OneToMany(mappedBy = "user")
-    private Set<Notification> notifications = new HashSet<>();
+//    @OneToMany(mappedBy = "user")
+//    private Set<Notification> notifications = new HashSet<>();
 }
