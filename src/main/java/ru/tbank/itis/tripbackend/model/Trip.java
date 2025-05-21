@@ -51,7 +51,7 @@ public class Trip {
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
     private Set<Debt> debts = new HashSet<>();
 
-    @OneToMany(mappedBy = "trip")
-    private Set<Notification> notifications = new HashSet<>();
+//    @OneToMany(mappedBy = "trip")
+//    private Set<Notification> notifications = new HashSet<>();
 
 }
