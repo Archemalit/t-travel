@@ -9,6 +9,6 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Mapper(componentModel = SPRING)
 public interface TripMapper {
-    TripResponse tripToTripDto(Trip trip);
-    Trip tripDtoToTrip(TripRequest tripDto);
+    TripResponse toDto(Trip trip);
+    Trip toEntity(TripRequest tripDto);
 }

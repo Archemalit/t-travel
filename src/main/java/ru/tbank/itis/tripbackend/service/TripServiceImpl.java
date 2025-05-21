@@ -30,11 +30,11 @@ public class TripServiceImpl implements TripService {
     public List<TripResponse> getAllTripsByUserId(Long id, boolean onlyCreator) {
         if (onlyCreator) {
             return tripRepository.findByCreatorId(id).stream()
-                    .map(tripMapper::tripToTripDto)
+                    .map(tripMapper::toDto)
                     .collect(Collectors.toList());
         }
         return tripRepository.findByParticipantsUserId(id).stream()
-                .map(tripMapper::tripToTripDto)
+                .map(tripMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -50,12 +50,12 @@ public class TripServiceImpl implements TripService {
         if (!isParticipant) {
             throw new ForbiddenAccessException("Доступа нет!");
         }
-        return tripMapper.tripToTripDto(trip);
+        return tripMapper.toDto(trip);
     }
 
     @Override
     public TripResponse createTrip(TripRequest tripRequest, User user) {
-        Trip trip = tripMapper.tripDtoToTrip(tripRequest);
+        Trip trip = tripMapper.toEntity(tripRequest);
         trip.setCreator(user);
         TripParticipant tripParticipant =
                 TripParticipant.builder()
@@ -65,7 +65,7 @@ public class TripServiceImpl implements TripService {
                 .build();
         trip.setParticipants(Set.of(tripParticipant));
         tripRepository.save(trip);
-        return tripMapper.tripToTripDto(trip);
+        return tripMapper.toDto(trip);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class TripServiceImpl implements TripService {
         existingTrip.setTotalBudget(tripRequest.getTotalBudget());
 
         Trip updatedTrip = tripRepository.save(existingTrip);
-        return tripMapper.tripToTripDto(updatedTrip);
+        return tripMapper.toDto(updatedTrip);
     }
 
     @Override

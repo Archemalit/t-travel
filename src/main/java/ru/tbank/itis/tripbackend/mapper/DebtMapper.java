@@ -9,11 +9,11 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Mapper(componentModel = SPRING)
 public interface DebtMapper {
-    DebtDto debtToDebtDto(Debt debt);
+    DebtDto toDto(Debt debt);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "trip", ignore = true)
     @Mapping(target = "debtor", ignore = true)
     @Mapping(target = "creditor", ignore = true)
-    Debt debtDtoToDebt(DebtDto debtDto);
+    Debt toEntity(DebtDto debtDto);
 }

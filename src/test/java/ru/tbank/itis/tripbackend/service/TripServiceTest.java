@@ -146,9 +146,9 @@ class TripServiceTest {
     @Test
     @DisplayName("Создание поездки — успешно создано с текущим пользователем как создателем и участником")
     void createTrip_shouldCreateNewTripWithCurrentUserAsCreatorAndParticipant() {
-        when(tripMapper.tripDtoToTrip(mockTripRequest)).thenReturn(mockTrip);
+        when(tripMapper.toEntity(mockTripRequest)).thenReturn(mockTrip);
         when(tripRepository.save(any(Trip.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(tripMapper.tripToTripDto(any(Trip.class))).thenReturn(mockTripResponse);
+        when(tripMapper.toDto(any(Trip.class))).thenReturn(mockTripResponse);
 
         TripResponse result = tripService.createTrip(mockTripRequest, mockUser);
 

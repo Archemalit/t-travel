@@ -9,8 +9,8 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Mapper(componentModel = SPRING)
 public interface ExpenseCategoryMapper {
-    ExpenseCategoryDto expenseCategoryToExpenseCategoryDto(ExpenseCategory expenseCategory);
+    ExpenseCategoryDto toDto(ExpenseCategory expenseCategory);
 
     @Mapping(target = "id", ignore = true)
-    ExpenseCategory expenseCategoryDtoToExpenseCategory(ExpenseCategoryDto expenseCategoryDto);
+    ExpenseCategory toEntity(ExpenseCategoryDto expenseCategoryDto);
 }
