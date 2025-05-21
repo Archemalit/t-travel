@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface TripService {
     List<TripResponse> getAllTripsByUserId(Long id, boolean onlyCreator);
-    TripResponse getTripById(Long id, User user);
+    TripResponse getTripById(Long id, Long userId);
     TripResponse createTrip(TripRequest tripRequest, User user);
-    TripResponse updateTrip(Long id, TripRequest tripRequest, User user);
-    void deleteTrip(Long id, User user);
+    TripResponse updateTrip(Long id, TripRequest tripRequest, Long userId);
+    void deleteTrip(Long id, Long userId);
 }

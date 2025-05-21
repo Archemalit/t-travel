@@ -30,7 +30,7 @@ public class TripController {
     @GetMapping("/{id}")
     public TripResponse getTripById(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                     @PathVariable("id") Long id) {
-        return tripService.getTripById(id, userDetails.getUser());
+        return tripService.getTripById(id, userDetails.getId());
     }
 
     @PostMapping
@@ -43,13 +43,13 @@ public class TripController {
     @PutMapping("/{id}")
     public TripResponse updateTrip(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                    @PathVariable Long id, @Valid @RequestBody TripRequest tripRequest) {
-        return tripService.updateTrip(id, tripRequest, userDetails.getUser());
+        return tripService.updateTrip(id, tripRequest, userDetails.getId());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTrip(@AuthenticationPrincipal UserDetailsImpl userDetails,
                            @PathVariable Long id) {
-        tripService.deleteTrip(id, userDetails.getUser());
+        tripService.deleteTrip(id, userDetails.getId());
     }
 }
