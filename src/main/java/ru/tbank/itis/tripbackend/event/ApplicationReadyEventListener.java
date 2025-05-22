@@ -14,7 +14,7 @@ import ru.tbank.itis.tripbackend.repository.UserRepository;
 @Profile("dev")
 @RequiredArgsConstructor
 public class ApplicationReadyEventListener {
-    private static final String ADMIN_PHONE_NUMBER = "7999999999";
+    private static final String ADMIN_PHONE_NUMBER = "79999999999";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -22,12 +22,13 @@ public class ApplicationReadyEventListener {
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
         if (userRepository.findUserByPhoneNumber(ADMIN_PHONE_NUMBER).isEmpty()) {
-            User user = new User()
-                    .setFirstName("Name")
-                    .setLastName("Surname")
-                    .setPhoneNumber(ADMIN_PHONE_NUMBER)
-                    .setPassword(passwordEncoder.encode("123"))
-                    .setRole(UserRole.ADMIN);
+            User user = User.builder()
+                    .firstName("Name")
+                    .lastName("Surname")
+                    .phoneNumber(ADMIN_PHONE_NUMBER)
+                    .password(passwordEncoder.encode("123"))
+                    .role(UserRole.ADMIN)
+                    .build();
 
             userRepository.save(user);
         }

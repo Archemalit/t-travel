@@ -1,21 +1,22 @@
-package ru.tbank.itis.tripbackend.service.impl;
+package ru.tbank.itis.tripbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.tbank.itis.tripbackend.dto.TripDto;
+import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
+import ru.tbank.itis.tripbackend.dto.request.TripRequest;
+import ru.tbank.itis.tripbackend.dto.response.TripResponse;
+import ru.tbank.itis.tripbackend.exception.ForbiddenAccessException;
 import ru.tbank.itis.tripbackend.exception.TripNotFoundException;
-import ru.tbank.itis.tripbackend.exception.UserNotFoundException;
 import ru.tbank.itis.tripbackend.exception.ValidationException;
 import ru.tbank.itis.tripbackend.mapper.TripMapper;
 import ru.tbank.itis.tripbackend.model.Trip;
+import ru.tbank.itis.tripbackend.model.TripParticipant;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.TripRepository;
-import ru.tbank.itis.tripbackend.repository.UserRepository;
-import ru.tbank.itis.tripbackend.service.TripService;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,72 +24,82 @@ import java.util.stream.Collectors;
 public class TripServiceImpl implements TripService {
 
     private final TripRepository tripRepository;
-    private final UserRepository userRepository;
     private final TripMapper tripMapper;
 
     @Override
-    @Transactional
-    public List<TripDto> getAllTrips() {
-        return tripRepository.findAll()
-                .stream()
-                .map(tripMapper::tripToTripDto)
+    public List<TripResponse> getAllTripsByUserId(Long id, boolean onlyCreator) {
+        if (onlyCreator) {
+            return tripRepository.findByCreatorId(id).stream()
+                    .map(tripMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+        return tripRepository.findByParticipantsUserId(id).stream()
+                .map(tripMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public TripDto getTripById(Long id) {
+    public TripResponse getTripById(Long id, Long userId) {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(() -> new TripNotFoundException(id));
-        return tripMapper.tripToTripDto(trip);
+
+        boolean isParticipant = trip.getParticipants().stream()
+                .anyMatch(participant -> participant.getUser().getId().equals(userId));
+
+        if (!isParticipant) {
+            throw new ForbiddenAccessException("Доступа нет!");
+        }
+        return tripMapper.toDto(trip);
     }
 
     @Override
-    @Transactional
-    public TripDto createTrip(TripDto tripDto) {
-        validateTripDates(tripDto.getStartDate(), tripDto.getEndDate());
-
-        Trip trip = tripMapper.tripDtoToTrip(tripDto);
-
-        User creator = userRepository.findById(1L)
-                .orElseThrow(() -> new UserNotFoundException(1L));
-        trip.setCreator(creator);
-
-        Trip savedTrip = tripRepository.save(trip);
-        return tripMapper.tripToTripDto(savedTrip);
+    public TripResponse createTrip(TripRequest tripRequest, User user) {
+        Trip trip = tripMapper.toEntity(tripRequest);
+        trip.setCreator(user);
+        TripParticipant tripParticipant =
+                TripParticipant.builder()
+                        .status(TripParticipantStatus.ACCEPTED)
+                        .trip(trip)
+                        .user(user)
+                        .build();
+        trip.setParticipants(Set.of(tripParticipant));
+        tripRepository.save(trip);
+        return tripMapper.toDto(trip);
     }
 
     @Override
-    @Transactional
-    public TripDto updateTrip(Long id, TripDto tripDto) {
-        validateTripDates(tripDto.getStartDate(), tripDto.getEndDate());
-
+    public TripResponse updateTrip(Long id, TripRequest tripRequest, Long userId) {
         Trip existingTrip = tripRepository.findById(id)
                 .orElseThrow(() -> new TripNotFoundException(id));
 
-        existingTrip.setTitle(tripDto.getTitle());
-        existingTrip.setDescription(tripDto.getDescription());
-        existingTrip.setStartDate(tripDto.getStartDate());
-        existingTrip.setEndDate(tripDto.getEndDate());
-        existingTrip.setTotalBudget(tripDto.getTotalBudget());
+        if (!existingTrip.getCreator().getId().equals(userId)) {
+            throw new ForbiddenAccessException("Доступа нет!");
+        }
 
+        if (tripRequest.getTotalBudget() < 0) {
+            throw new ValidationException("Бюджет не может быть отрицательным");
+        }
+
+        existingTrip.setTitle(tripRequest.getTitle());
+        existingTrip.setDescription(tripRequest.getDescription());
+        existingTrip.setStartDate(tripRequest.getStartDate());
+        existingTrip.setEndDate(tripRequest.getEndDate());
+        existingTrip.setTotalBudget(tripRequest.getTotalBudget());
 
         Trip updatedTrip = tripRepository.save(existingTrip);
-        return tripMapper.tripToTripDto(updatedTrip);
+        return tripMapper.toDto(updatedTrip);
     }
 
     @Override
-    @Transactional
-    public void deleteTrip(Long id) {
+    public void deleteTrip(Long id, Long userId) {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(() -> new TripNotFoundException(id));
 
-        tripRepository.delete(trip);
-    }
-
-    private void validateTripDates(LocalDate startDate, LocalDate endDate) {
-        if (endDate.isBefore(startDate)) {
-            throw new ValidationException("Дата окончания поездки не может быть раньше даты начала");
+        if (!trip.getCreator().getId().equals(userId)) {
+            throw new ForbiddenAccessException("Доступа нет!");
         }
+
+        tripRepository.deleteById(id);
     }
 }
