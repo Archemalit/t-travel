@@ -4,9 +4,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import ru.tbank.itis.tripbackend.dto.TripDto;
+import ru.tbank.itis.tripbackend.dto.request.TripRequest;
+import ru.tbank.itis.tripbackend.dto.response.TripResponse;
+import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
 import ru.tbank.itis.tripbackend.service.TripService;
+
 import java.util.List;
 
 @RestController
@@ -18,29 +22,34 @@ public class TripController {
     private final TripService tripService;
 
     @GetMapping
-    public List<TripDto> getAllTrips() {
-        return tripService.getAllTrips();
+    public List<TripResponse> getAllTrips(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                          @RequestParam(name = "onlyCreator", required = false, defaultValue = "false") boolean onlyCreator) {
+        return tripService.getAllTripsByUserId(userDetails.getId(), onlyCreator);
     }
 
     @GetMapping("/{id}")
-    public TripDto getTripById(@PathVariable("id") long id) {
-        return tripService.getTripById(id);
+    public TripResponse getTripById(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                    @PathVariable("id") Long id) {
+        return tripService.getTripById(id, userDetails.getId());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TripDto createTrip(@Valid @RequestBody TripDto tripDto) {
-        return tripService.createTrip(tripDto);
+    public TripResponse createTrip(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                   @Valid @RequestBody TripRequest tripRequest) {
+        return tripService.createTrip(tripRequest, userDetails.getUser());
     }
 
     @PutMapping("/{id}")
-    public TripDto updateTrip(@PathVariable Long id, @Valid @RequestBody TripDto tripDto) {
-        return tripService.updateTrip(id, tripDto);
+    public TripResponse updateTrip(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                   @PathVariable Long id, @Valid @RequestBody TripRequest tripRequest) {
+        return tripService.updateTrip(id, tripRequest, userDetails.getId());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTrip(@PathVariable Long id) {
-        tripService.deleteTrip(id);
+    public void deleteTrip(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                           @PathVariable Long id) {
+        tripService.deleteTrip(id, userDetails.getId());
     }
 }

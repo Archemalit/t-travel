@@ -1,21 +1,16 @@
-package ru.tbank.itis.tripbackend.dto;
+package ru.tbank.itis.tripbackend.dto.request;
 
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TripDto {
-
-    private Long id;
-
+public class TripRequest {
     @NotBlank(message = "Название обязательно")
     @Size(max = 100, message = "Название должно быть менее 100 символов")
     private String title;
@@ -34,5 +29,4 @@ public class TripDto {
     @NotNull(message = "Общий бюджет обязателен")
     @PositiveOrZero(message = "Общий бюджет должен быть положительным или нулевым")
     private Double totalBudget;
-
 }
