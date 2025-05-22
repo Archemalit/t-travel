@@ -24,7 +24,7 @@ public class InvitationController {
         return invitationService.getUserInvitations(userDetails.getId());
     }
 
-    @PostMapping("/invitations/{invitationId}/accept")
+    @PostMapping("/{invitationId}/accept")
     @ResponseStatus(HttpStatus.OK)
     public SimpleResponse acceptInvitation(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -33,7 +33,7 @@ public class InvitationController {
         return invitationService.acceptInvitation(invitationId, userDetails.getId());
     }
 
-    @PostMapping("/invitations/{invitationId}/reject")
+    @PostMapping("/{invitationId}/reject")
     @ResponseStatus(HttpStatus.OK)
     public SimpleResponse rejectInvitation(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
