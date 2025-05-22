@@ -31,7 +31,7 @@ public class InvitationServiceImpl implements InvitationService {
     public List<TripInvitationDto> getUserInvitations(Long userId) {
         return tripInvitationRepository.findAllByInvitedUserIdAndStatus(userId, InvitationStatus.ACTIVE)
                 .stream()
-                .map(tripInvitationMapper::tripInvitationToTripInvitationDto)
+                .map(tripInvitationMapper::toDto)
                 .collect(Collectors.toList());
     }
 

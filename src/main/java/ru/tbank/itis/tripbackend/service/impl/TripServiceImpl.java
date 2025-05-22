@@ -1,4 +1,4 @@
-package ru.tbank.itis.tripbackend.service;
+package ru.tbank.itis.tripbackend.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +14,7 @@ import ru.tbank.itis.tripbackend.model.Trip;
 import ru.tbank.itis.tripbackend.model.TripParticipant;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.TripRepository;
+import ru.tbank.itis.tripbackend.service.TripService;
 
 import java.util.List;
 import java.util.Set;

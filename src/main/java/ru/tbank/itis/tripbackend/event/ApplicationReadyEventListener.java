@@ -30,7 +30,16 @@ public class ApplicationReadyEventListener {
                     .role(UserRole.ADMIN)
                     .build();
 
+            User user1 = User.builder()
+                    .firstName("Name2")
+                    .lastName("Surname2")
+                    .phoneNumber("79999999998")
+                    .password(passwordEncoder.encode("123"))
+                    .role(UserRole.USER)
+                    .build();
+
             userRepository.save(user);
+            userRepository.save(user1);
         }
     }
 

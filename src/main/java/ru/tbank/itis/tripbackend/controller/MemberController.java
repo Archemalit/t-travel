@@ -33,9 +33,9 @@ public class MemberController {
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public SimpleResponse removeMember(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long tripId,
-            @PathVariable Long userId,
-            @AuthenticationPrincipal UserDetailsImpl userDetails
+            @PathVariable Long userId
     ) {
         return memberService.removeMember(tripId, userId, userDetails.getUser());
     }
