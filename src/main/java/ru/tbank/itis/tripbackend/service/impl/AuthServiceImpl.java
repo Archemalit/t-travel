@@ -1,4 +1,4 @@
-package ru.tbank.itis.tripbackend.service;
+package ru.tbank.itis.tripbackend.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +12,7 @@ import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.RefreshTokenRepository;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
 import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
+import ru.tbank.itis.tripbackend.service.AuthService;
 
 @Service
 @RequiredArgsConstructor
