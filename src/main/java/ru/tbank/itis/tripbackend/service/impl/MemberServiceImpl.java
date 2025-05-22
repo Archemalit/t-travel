@@ -26,19 +26,15 @@ public class MemberServiceImpl implements MemberService {
     private final UserRepository userRepository;
     private final TripInvitationRepository tripInvitationRepository;
     private final TripParticipantRepository tripParticipantRepository;
-    private final TripInvitationMapper tripInvitationMapper;
     private final TripParticipantMapper tripParticipantMapper;
 
     @Override
     @Transactional
-    public SimpleResponse inviteMember(Long tripId, Long inviterId, InviteRequest inviteRequest) {
+    public SimpleResponse inviteMember(Long tripId, User creator, InviteRequest inviteRequest) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(tripId));
 
-        User inviter = userRepository.findById(inviterId)
-                .orElseThrow(() -> new UserNotFoundException(inviterId));
-
-        if (!trip.getCreator().getId().equals(inviterId)) {
+        if (!trip.getCreator().getId().equals(creator.getId())) {
             throw new ForbiddenAccessException("Только создатель поездки может приглашать участников");
         }
 
@@ -56,7 +52,7 @@ public class MemberServiceImpl implements MemberService {
         TripInvitation invitation = TripInvitation.builder()
                 .trip(trip)
                 .invitedUser(invitedUser)
-                .inviter(inviter)
+                .inviter(creator)
                 .status(InvitationStatus.ACTIVE)
                 .build();
 
@@ -78,11 +74,11 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public SimpleResponse removeMember(Long tripId, Long userId, Long requesterId) {
+    public SimpleResponse removeMember(Long tripId, Long userId, User creator) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(tripId));
 
-        if (!trip.getCreator().getId().equals(requesterId)) {
+        if (!trip.getCreator().getId().equals(creator.getId())) {
             throw new ForbiddenAccessException("Только создатель поездки может удалять участников");
         }
 
@@ -100,76 +96,6 @@ public class MemberServiceImpl implements MemberService {
         return SimpleResponse.builder()
                 .success(true)
                 .message("Участник успешно удален из поездки")
-                .build();
-    }
-
-    @Override
-    public List<TripInvitationDto> getUserInvitations(Long userId) {
-        return tripInvitationRepository.findAllByInvitedUserIdAndStatus(userId, InvitationStatus.ACTIVE)
-                .stream()
-                .map(tripInvitationMapper::tripInvitationToTripInvitationDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public SimpleResponse acceptInvitation(Long invitationId, Long userId) {
-        TripInvitation invitation = tripInvitationRepository.findById(invitationId)
-                .orElseThrow(() -> new InvitationNotFoundException(invitationId));
-
-        if (!invitation.getInvitedUser().getId().equals(userId)) {
-            throw new ForbiddenAccessException("Вы не можете принять это приглашение");
-        }
-
-        if (invitation.getStatus() != InvitationStatus.ACTIVE) {
-            throw new ValidationException("Приглашение не активно");
-        }
-
-        TripParticipant participant = tripParticipantRepository.findByTripIdAndUserId(
-                invitation.getTrip().getId(), 
-                userId
-        ).orElseThrow(() -> new ParticipantNotFoundException(invitation.getTrip().getId(), userId));
-
-        participant.setStatus(TripParticipantStatus.ACCEPTED);
-        tripParticipantRepository.save(participant);
-
-        invitation.setStatus(InvitationStatus.ARCHIVED);
-        tripInvitationRepository.save(invitation);
-
-        return SimpleResponse.builder()
-                .success(true)
-                .message("Вы приняли приглашение в поездку " + invitation.getTrip().getTitle())
-                .build();
-    }
-
-    @Override
-    @Transactional
-    public SimpleResponse rejectInvitation(Long invitationId, Long userId) {
-        TripInvitation invitation = tripInvitationRepository.findById(invitationId)
-                .orElseThrow(() -> new InvitationNotFoundException(invitationId));
-
-        if (!invitation.getInvitedUser().getId().equals(userId)) {
-            throw new ForbiddenAccessException("Вы не можете отклонить это приглашение");
-        }
-
-        if (invitation.getStatus() != InvitationStatus.ACTIVE) {
-            throw new ValidationException("Приглашение не активно");
-        }
-
-        TripParticipant participant = tripParticipantRepository.findByTripIdAndUserId(
-                invitation.getTrip().getId(),
-                userId
-        ).orElseThrow(() -> new ParticipantNotFoundException(invitation.getTrip().getId(), userId));
-
-        participant.setStatus(TripParticipantStatus.REJECTED);
-        tripParticipantRepository.save(participant);
-
-        invitation.setStatus(InvitationStatus.ARCHIVED);
-        tripInvitationRepository.save(invitation);
-
-        return SimpleResponse.builder()
-                .success(true)
-                .message("Вы отклонили приглашение в поездку " + invitation.getTrip().getTitle())
                 .build();
     }
 }

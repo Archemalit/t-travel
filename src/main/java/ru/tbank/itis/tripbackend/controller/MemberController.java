@@ -3,10 +3,12 @@ package ru.tbank.itis.tripbackend.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.itis.tripbackend.dto.*;
 import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
 import ru.tbank.itis.tripbackend.dto.request.InviteRequest;
+import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
 import ru.tbank.itis.tripbackend.service.MemberService;
 
 import java.util.List;
@@ -21,45 +23,20 @@ public class MemberController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SimpleResponse inviteMember(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long tripId,
-            @RequestHeader("X-User-Id") Long inviterId,
             @Valid @RequestBody InviteRequest inviteRequest
     ) {
-        return memberService.inviteMember(tripId, inviterId, inviteRequest);
+        return memberService.inviteMember(tripId, userDetails.getUser(), inviteRequest);
     }
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeMember(
+    public SimpleResponse removeMember(
             @PathVariable Long tripId,
             @PathVariable Long userId,
-            @RequestHeader("X-User-Id") Long requesterId
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        memberService.removeMember(tripId, userId, requesterId);
-    }
-
-    @GetMapping("/invitations")
-    public List<TripInvitationDto> getUserInvitations(
-            @RequestHeader("X-User-Id") Long userId
-    ) {
-        return memberService.getUserInvitations(userId);
-    }
-
-    @PostMapping("/invitations/{invitationId}/accept")
-    @ResponseStatus(HttpStatus.OK)
-    public SimpleResponse acceptInvitation(
-            @PathVariable Long invitationId,
-            @RequestHeader("X-User-Id") Long userId
-    ) {
-        return memberService.acceptInvitation(invitationId, userId);
-    }
-
-    @PostMapping("/invitations/{invitationId}/reject")
-    @ResponseStatus(HttpStatus.OK)
-    public SimpleResponse rejectInvitation(
-            @PathVariable Long invitationId,
-            @RequestHeader("X-User-Id") Long userId
-    ) {
-        return memberService.rejectInvitation(invitationId, userId);
+        return memberService.removeMember(tripId, userId, userDetails.getUser());
     }
 }
