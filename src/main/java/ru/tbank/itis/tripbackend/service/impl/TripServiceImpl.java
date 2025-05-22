@@ -59,10 +59,10 @@ public class TripServiceImpl implements TripService {
         trip.setCreator(user);
         TripParticipant tripParticipant =
                 TripParticipant.builder()
-                .status(TripParticipantStatus.ACCEPTED)
-                .trip(trip)
-                .user(user)
-                .build();
+                        .status(TripParticipantStatus.ACCEPTED)
+                        .trip(trip)
+                        .user(user)
+                        .build();
         trip.setParticipants(Set.of(tripParticipant));
         tripRepository.save(trip);
         return tripMapper.toDto(trip);
