@@ -26,7 +26,6 @@ public class MemberServiceImpl implements MemberService {
     private final UserRepository userRepository;
     private final TripInvitationRepository tripInvitationRepository;
     private final TripParticipantRepository tripParticipantRepository;
-    private final TripParticipantMapper tripParticipantMapper;
 
     @Override
     @Transactional
