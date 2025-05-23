@@ -1,4 +1,4 @@
-package ru.tbank.itis.tripbackend.security.jwt.handler;
+package ru.tbank.itis.tripbackend.security.jwt.handler.success;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -91,7 +91,7 @@ public class WebSecurityConfiguration {
     public RefreshTokenAuthenticationFilter refreshTokenAuthenticationFilter(
             AuthenticationManager authenticationManager,
             @Qualifier("refreshTokenAuthenticationSuccessHandler") AuthenticationSuccessHandler successHandler,
-            @Qualifier("jwtAuthenticationFailureHandler") AuthenticationFailureHandler failureHandler,
+            @Qualifier("refreshTokenAuthenticationFailureHandler") AuthenticationFailureHandler failureHandler,
             RefreshTokenRepository refreshTokenRepository,
             JwtService jwtService) {
         return new RefreshTokenAuthenticationFilter(

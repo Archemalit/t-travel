@@ -1,6 +1,8 @@
-package ru.tbank.itis.tripbackend.security.jwt.handler;
+package ru.tbank.itis.tripbackend.security.jwt.handler.failure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +18,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Component
-public class JwtAuthenticationFailureHandler implements AuthenticationFailureHandler {
+public class RefreshTokenAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -24,6 +26,7 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
 
         String message = "Unauthorized";
 
@@ -32,12 +35,13 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
         }
 
         SimpleErrorResponse errorResponse = new SimpleErrorResponse(
-                null,
+                LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(),
                 "Неверный refresh-токен",
                 message
         );
-
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }
