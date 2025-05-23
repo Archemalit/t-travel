@@ -3,7 +3,9 @@ package ru.tbank.itis.tripbackend.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
+import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
 import ru.tbank.itis.tripbackend.dto.request.TripRequest;
 import ru.tbank.itis.tripbackend.dto.response.TripResponse;
 import ru.tbank.itis.tripbackend.exception.ForbiddenAccessException;
@@ -31,10 +33,12 @@ public class TripServiceImpl implements TripService {
     public List<TripResponse> getAllTripsByUserId(Long id, boolean onlyCreator) {
         if (onlyCreator) {
             return tripRepository.findByCreatorId(id).stream()
+                    .filter(trip -> trip.getStatus() == ForTripAndInvitationStatus.ACTIVE)
                     .map(tripMapper::toDto)
                     .collect(Collectors.toList());
         }
         return tripRepository.findByParticipantsUserId(id).stream()
+                .filter(trip -> trip.getStatus() == ForTripAndInvitationStatus.ACTIVE)
                 .map(tripMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -51,6 +55,11 @@ public class TripServiceImpl implements TripService {
         if (!isParticipant) {
             throw new ForbiddenAccessException("Доступа нет!");
         }
+
+        if (trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED) {
+            throw new ForbiddenAccessException("Поездка находится в архиве");
+        }
+
         return tripMapper.toDto(trip);
     }
 
@@ -58,6 +67,7 @@ public class TripServiceImpl implements TripService {
     public TripResponse createTrip(TripRequest tripRequest, User user) {
         Trip trip = tripMapper.toEntity(tripRequest);
         trip.setCreator(user);
+        trip.setStatus(ForTripAndInvitationStatus.ACTIVE);
         TripParticipant tripParticipant =
                 TripParticipant.builder()
                         .status(TripParticipantStatus.ACCEPTED)
@@ -66,7 +76,10 @@ public class TripServiceImpl implements TripService {
                         .build();
         trip.setParticipants(Set.of(tripParticipant));
         tripRepository.save(trip);
-        return tripMapper.toDto(trip);
+
+        TripResponse response = tripMapper.toDto(trip);
+        response.setStatus(trip.getStatus());
+        return response;
     }
 
     @Override
@@ -80,6 +93,10 @@ public class TripServiceImpl implements TripService {
 
         if (tripRequest.getTotalBudget() < 0) {
             throw new ValidationException("Бюджет не может быть отрицательным");
+        }
+
+        if (existingTrip.getStatus() == ForTripAndInvitationStatus.ARCHIVED) {
+            throw new ForbiddenAccessException("Нельзя изменить поездку в архиве");
         }
 
         existingTrip.setTitle(tripRequest.getTitle());
@@ -101,6 +118,32 @@ public class TripServiceImpl implements TripService {
             throw new ForbiddenAccessException("Доступа нет!");
         }
 
+        if (trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED) {
+            throw new ForbiddenAccessException("Нельзя удалить поездку в архиве");
+        }
+
         tripRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public SimpleResponse archiveTrip(Long tripId, Long userId) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException(tripId));
+
+        boolean isParticipant = trip.getParticipants().stream()
+                .anyMatch(participant -> participant.getUser().getId().equals(userId));
+
+        if (!isParticipant) {
+            throw new ForbiddenAccessException("Доступа нет!");
+        }
+
+        trip.setStatus(ForTripAndInvitationStatus.ARCHIVED);
+        tripRepository.save(trip);
+
+        return SimpleResponse.builder()
+                .success(true)
+                .message("Поездка успешно архивирована")
+                .build();
     }
 }

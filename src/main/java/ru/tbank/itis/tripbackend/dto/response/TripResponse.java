@@ -2,6 +2,7 @@ package ru.tbank.itis.tripbackend.dto.response;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -15,6 +16,8 @@ import java.util.Objects;
 public class TripResponse {
 
     private Long id;
+
+    private ForTripAndInvitationStatus status;
 
     @NotBlank(message = "Название обязательно")
     @Size(max = 100, message = "Название должно быть менее 100 символов")

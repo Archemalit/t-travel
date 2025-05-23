@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
 import ru.tbank.itis.tripbackend.dto.request.TripRequest;
 import ru.tbank.itis.tripbackend.dto.response.TripResponse;
 import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
@@ -51,5 +52,11 @@ public class TripController {
     public void deleteTrip(@AuthenticationPrincipal UserDetailsImpl userDetails,
                            @PathVariable Long id) {
         tripService.deleteTrip(id, userDetails.getId());
+    }
+
+    @PatchMapping("/{id}/archive")
+    public SimpleResponse archiveTrip(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                      @PathVariable Long id) {
+        return tripService.archiveTrip(id, userDetails.getId());
     }
 }

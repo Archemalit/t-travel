@@ -3,6 +3,7 @@ package ru.tbank.itis.tripbackend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
+import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -41,6 +42,10 @@ public class Trip {
     @ManyToOne()
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ForTripAndInvitationStatus status;
 
     @OneToMany(mappedBy = "trip", fetch = FetchType.LAZY)
     private List<Expense> expenses;

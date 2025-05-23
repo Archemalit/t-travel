@@ -1,5 +1,6 @@
 package ru.tbank.itis.tripbackend.service;
 
+import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
 import ru.tbank.itis.tripbackend.dto.request.TripRequest;
 import ru.tbank.itis.tripbackend.dto.response.TripResponse;
 import ru.tbank.itis.tripbackend.model.User;
@@ -12,4 +13,6 @@ public interface TripService {
     TripResponse createTrip(TripRequest tripRequest, User user);
     TripResponse updateTrip(Long id, TripRequest tripRequest, Long userId);
     void deleteTrip(Long id, Long userId);
+
+    SimpleResponse archiveTrip(Long tripId, Long userId);
 }

@@ -1,0 +1,60 @@
+package ru.tbank.itis.tripbackend.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import ru.tbank.itis.tripbackend.dictionary.UserRole;
+import ru.tbank.itis.tripbackend.dto.JwtTokenPairDto;
+import ru.tbank.itis.tripbackend.dto.request.UserRegistrationRequest;
+import ru.tbank.itis.tripbackend.dto.response.UserExistsResponse;
+import ru.tbank.itis.tripbackend.exception.PhoneNumberAlreadyTakenException;
+import ru.tbank.itis.tripbackend.model.User;
+import ru.tbank.itis.tripbackend.repository.UserRepository;
+import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
+import ru.tbank.itis.tripbackend.service.UserService;
+
+@Service
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService {
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
+    private final PasswordEncoder encoder;
+    @Override
+    public JwtTokenPairDto register(UserRegistrationRequest request) {
+        if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
+            throw new PhoneNumberAlreadyTakenException("phoneNumber",
+                    request.phoneNumber(), "Пользователь с таким номером телефона уже существует");
+        }
+
+        User user = User.builder()
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .phoneNumber(request.phoneNumber())
+                .password(encoder.encode(request.password()))
+                .role(UserRole.USER)
+                .build();
+        userRepository.save(user);
+
+        JwtTokenPairDto jwtPair = jwtService.getTokenPair(request.phoneNumber());
+        return jwtPair;
+    }
+
+    @Override
+    public UserExistsResponse doesUserExistByPhoneNumber(String phoneNumber) {
+        boolean exists = userRepository.existsByPhoneNumber(phoneNumber);
+        return new UserExistsResponse(exists);
+    }
+
+//    @Override
+//    public AuthResponse login(UserLoginRequest request) {
+//        User user = userRepository.findUserByPhoneNumber(request.phoneNumber())
+//                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+//
+//        if (!encoder.matches(request.password(), user.getPassword())) {
+//            throw new IllegalArgumentException("Неверный пароль");
+//        }
+//
+//        JwtTokenPairDto jwtPair = jwtService.getTokenPair(request.phoneNumber());
+//        return new AuthResponse(jwtPair.accessToken(), jwtPair.refreshToken());
+//    }
+}
