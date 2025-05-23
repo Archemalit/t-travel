@@ -37,7 +37,7 @@ import java.util.List;
 public class WebSecurityConfiguration {
 
     private final List<String> ANONYMOUS_PATHS = List.of(
-            "/api/v1/login", "/api/v1/register", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/refresh");
+            "/api/v1/login", "/api/v1/register", "/api/v1/check", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/refresh");
 
     @Bean
     public SecurityFilterChain apiSecurityFilterChain(
@@ -53,7 +53,7 @@ public class WebSecurityConfiguration {
                 .addFilterAt(loginAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(refreshTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/login", "/api/v1/register").permitAll()
+                        .requestMatchers("/api/v1/login", "/api/v1/register", "/api/v1/check").permitAll()
                         .anyRequest().authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(AbstractHttpConfigurer::disable);
@@ -70,7 +70,7 @@ public class WebSecurityConfiguration {
     public LoginAuthenticationFilter loginAuthenticationFilter(
             AuthenticationManager authenticationManager,
             @Qualifier("tokenAuthenticationSuccessHandler") AuthenticationSuccessHandler successHandler,
-            AuthenticationFailureHandler failureHandler
+            @Qualifier("authenticationFailureHandler") AuthenticationFailureHandler failureHandler
     ) {
         return new LoginAuthenticationFilter(
                 "/api/v1/login", authenticationManager, successHandler, failureHandler);
@@ -80,7 +80,7 @@ public class WebSecurityConfiguration {
     public TokenAuthenticationFilter tokenAuthenticationFilter(
             JwtService jwtService,
             AuthenticationManager authenticationManager,
-            AuthenticationFailureHandler failureHandler) {
+            @Qualifier("authenticationFailureHandler") AuthenticationFailureHandler failureHandler) {
         SkipPathRequestMatcher requestMatcher = new SkipPathRequestMatcher(ANONYMOUS_PATHS);
 
         return new TokenAuthenticationFilter(
@@ -91,7 +91,7 @@ public class WebSecurityConfiguration {
     public RefreshTokenAuthenticationFilter refreshTokenAuthenticationFilter(
             AuthenticationManager authenticationManager,
             @Qualifier("refreshTokenAuthenticationSuccessHandler") AuthenticationSuccessHandler successHandler,
-            AuthenticationFailureHandler failureHandler,
+            @Qualifier("jwtAuthenticationFailureHandler") AuthenticationFailureHandler failureHandler,
             RefreshTokenRepository refreshTokenRepository,
             JwtService jwtService) {
         return new RefreshTokenAuthenticationFilter(

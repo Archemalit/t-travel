@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import ru.tbank.itis.tripbackend.dto.JwtTokenPairDto;
 import ru.tbank.itis.tripbackend.dto.request.RefreshTokenRequest;
+import ru.tbank.itis.tripbackend.exception.InvalidRefreshTokenException;
 import ru.tbank.itis.tripbackend.repository.RefreshTokenRepository;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
 import ru.tbank.itis.tripbackend.security.exception.AuthMethodNotSupportedException;
@@ -53,7 +54,7 @@ public class RefreshTokenAuthenticationFilter extends AbstractAuthenticationProc
         RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(jwtService.getRawToken(request));
 
         if (refreshTokenRepository.deleteByToken(refreshTokenRequest.refreshToken()) == 0) {
-            throw new BadCredentialsException("Данный токен не актуален!");
+            throw new InvalidRefreshTokenException("Данный refresh-токен не актуален!");
         }
 
         JwtTokenPairDto jwtPair = jwtService.getTokenPair(jwtService.getPhoneNumber(refreshTokenRequest.refreshToken()));
