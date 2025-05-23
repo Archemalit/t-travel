@@ -21,6 +21,7 @@ import ru.tbank.itis.tripbackend.model.Trip;
 import ru.tbank.itis.tripbackend.model.TripParticipant;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.TripRepository;
+import ru.tbank.itis.tripbackend.service.impl.TripServiceImpl;
 
 import java.time.LocalDate;
 import java.util.HashSet;

@@ -9,11 +9,14 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Mapper(componentModel = SPRING)
 public interface TripInvitationMapper {
-    TripInvitationDto tripInvitationToTripInvitationDto(TripInvitation tripInvitation);
+    @Mapping(target = "tripId", source = "trip.id")
+    @Mapping(target = "invitedUserId", source = "invitedUser.id")
+    @Mapping(target = "inviterId", source = "inviter.id")
+    TripInvitationDto toDto(TripInvitation tripInvitation);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "trip", ignore = true)
     @Mapping(target = "invitedUser", ignore = true)
     @Mapping(target = "inviter", ignore = true)
-    TripInvitation tripInvitationDtoToTripInvitation(TripInvitationDto tripInvitationDto);
+    TripInvitation toEntity(TripInvitationDto tripInvitationDto);
 }
