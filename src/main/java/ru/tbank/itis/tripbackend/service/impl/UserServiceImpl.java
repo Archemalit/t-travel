@@ -6,25 +6,24 @@ import org.springframework.stereotype.Service;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
 import ru.tbank.itis.tripbackend.dto.JwtTokenPairDto;
 import ru.tbank.itis.tripbackend.dto.request.UserRegistrationRequest;
-import ru.tbank.itis.tripbackend.dto.response.AuthResponse;
+import ru.tbank.itis.tripbackend.dto.response.UserExistsResponse;
 import ru.tbank.itis.tripbackend.exception.PhoneNumberAlreadyTakenException;
 import ru.tbank.itis.tripbackend.model.User;
-import ru.tbank.itis.tripbackend.repository.RefreshTokenRepository;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
 import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
-import ru.tbank.itis.tripbackend.service.AuthService;
+import ru.tbank.itis.tripbackend.service.UserService;
 
 @Service
 @RequiredArgsConstructor
-public class AuthServiceImpl implements AuthService {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
     @Override
-    public AuthResponse register(UserRegistrationRequest request) {
+    public JwtTokenPairDto register(UserRegistrationRequest request) {
         if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
-            throw new PhoneNumberAlreadyTakenException("Этот номер телефона уже используется");
+            throw new PhoneNumberAlreadyTakenException("phoneNumber",
+                    request.phoneNumber(), "Пользователь с таким номером телефона уже существует");
         }
 
         User user = User.builder()
@@ -37,7 +36,13 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         JwtTokenPairDto jwtPair = jwtService.getTokenPair(request.phoneNumber());
-        return new AuthResponse(jwtPair.accessToken(), jwtPair.refreshToken());
+        return jwtPair;
+    }
+
+    @Override
+    public UserExistsResponse doesUserExistByPhoneNumber(String phoneNumber) {
+        boolean exists = userRepository.existsByPhoneNumber(phoneNumber);
+        return new UserExistsResponse(exists);
     }
 
 //    @Override
