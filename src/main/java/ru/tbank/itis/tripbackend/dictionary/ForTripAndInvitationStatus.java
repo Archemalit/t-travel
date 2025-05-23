@@ -1,6 +1,6 @@
 package ru.tbank.itis.tripbackend.dictionary;
 
-public enum InvitationStatus {
+public enum ForTripAndInvitationStatus {
 
     ACTIVE, ARCHIVED
 
