@@ -63,7 +63,7 @@ public class AuthController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Неверные данные для аутентификации",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationErrorResponse.class))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class))
                     )
             }
     )

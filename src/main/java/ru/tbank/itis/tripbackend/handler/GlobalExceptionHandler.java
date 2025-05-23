@@ -167,22 +167,15 @@ public class GlobalExceptionHandler {
         );
     }
 
-
-
-
-
-
-
-
-    @ExceptionHandler(InvalidRefreshTokenException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public SimpleErrorResponse handleInvalidRefreshToken(InvalidRefreshTokenException ex) {
-        return new SimpleErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.UNAUTHORIZED.value(),
-                "Неверный refresh-токен",
-                ex.getMessage()
-        );
-    }
+//    @ExceptionHandler(InvalidRefreshTokenException.class)
+//    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+//    public SimpleErrorResponse handleInvalidRefreshToken(InvalidRefreshTokenException ex) {
+//        return new SimpleErrorResponse(
+//                LocalDateTime.now(),
+//                HttpStatus.UNAUTHORIZED.value(),
+//                "Неверный refresh-токен",
+//                ex.getMessage()
+//        );
+//    }
 
 }

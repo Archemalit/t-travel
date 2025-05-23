@@ -48,7 +48,7 @@ public class RefreshTokenAuthenticationFilter extends AbstractAuthenticationProc
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         if (!POST.asHttpMethod().matches(request.getMethod())) {
-            throw new AuthMethodNotSupportedException("Auth method not supported");
+            throw new AuthMethodNotSupportedException("Этот метод не поддерживается!");
         }
 
         RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(jwtService.getRawToken(request));

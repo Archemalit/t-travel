@@ -70,7 +70,7 @@ public class WebSecurityConfiguration {
     public LoginAuthenticationFilter loginAuthenticationFilter(
             AuthenticationManager authenticationManager,
             @Qualifier("tokenAuthenticationSuccessHandler") AuthenticationSuccessHandler successHandler,
-            @Qualifier("authenticationFailureHandler") AuthenticationFailureHandler failureHandler
+            @Qualifier("tokenAuthenticationFailureHandler") AuthenticationFailureHandler failureHandler
     ) {
         return new LoginAuthenticationFilter(
                 "/api/v1/login", authenticationManager, successHandler, failureHandler);

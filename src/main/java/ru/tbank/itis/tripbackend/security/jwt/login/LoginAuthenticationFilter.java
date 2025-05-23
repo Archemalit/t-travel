@@ -41,13 +41,13 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingF
             throws AuthenticationException, IOException {
 
         if (!POST.asHttpMethod().matches(request.getMethod())) {
-            throw new AuthMethodNotSupportedException("Auth method not supported");
+            throw new AuthMethodNotSupportedException("Этот метод не поддерживается!");
         }
 
         UserLoginRequest loginRequest = JsonUtil.read(request.getReader(), UserLoginRequest.class);
 
         if (!loginRequest.password().equals(loginRequest.repeatPassword())) {
-            throw new AuthMethodNotSupportedException("Passwords do not match");
+            throw new AuthMethodNotSupportedException("Пароли не совпадают");
         }
 
         UsernamePasswordAuthenticationToken token =
