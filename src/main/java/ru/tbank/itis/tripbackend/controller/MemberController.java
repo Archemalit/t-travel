@@ -39,4 +39,12 @@ public class MemberController {
     ) {
         return memberService.removeMember(tripId, userId, userDetails.getUser());
     }
+
+    @GetMapping
+    public List<TripParticipantDto> getActiveMembers(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long tripId
+    ) {
+        return memberService.getActiveMembers(tripId, userDetails.getUser());
+    }
 }

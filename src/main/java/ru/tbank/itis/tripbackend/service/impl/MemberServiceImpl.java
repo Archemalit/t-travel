@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
+import ru.tbank.itis.tripbackend.dto.TripParticipantDto;
 import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
 import ru.tbank.itis.tripbackend.dto.request.InviteRequest;
 import ru.tbank.itis.tripbackend.exception.*;
@@ -93,5 +94,30 @@ public class MemberServiceImpl implements MemberService {
                 .success(true)
                 .message("Участник успешно удален из поездки")
                 .build();
+    }
+
+    @Override
+    public List<TripParticipantDto> getActiveMembers(Long tripId, User currentUser) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException(tripId));
+
+        boolean isParticipant = tripParticipantRepository.existsByTripIdAndUserId(tripId, currentUser.getId());
+        if (!isParticipant) {
+            throw new ForbiddenAccessException("Только участники поездки могут просматривать список участников");
+        }
+
+        if (trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED) {
+            throw new ForbiddenAccessException("Поездка находится в архиве");
+        }
+
+        return tripParticipantRepository.findAllByTripIdAndStatus(tripId, TripParticipantStatus.ACCEPTED)
+                .stream()
+                .map(participant -> TripParticipantDto.builder()
+                        .id(participant.getId())
+                        .status(participant.getStatus().name())
+                        .tripId(participant.getTrip().getId())
+                        .userId(participant.getUser().getId())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
