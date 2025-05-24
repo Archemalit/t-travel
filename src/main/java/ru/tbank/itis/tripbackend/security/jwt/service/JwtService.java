@@ -57,7 +57,7 @@ public class JwtService {
     private String createRefreshToken(String phoneNumber) {
         String refreshToken = JWT.create()
                 .withExpiresAt(new Date(
-                        new Date().getTime() + 1000 * 60 * 60 * 24 * 10)) // TODO
+                        new Date().getTime() + 1000 * 60 * 60 * 24 * 10))
                 .withClaim(PHONE_NUMBER_CLAIM, phoneNumber)
                 .withClaim(TYPE_CLAIM, REFRESH_TYPE_CLAIM)
                 .sign(algorithm);
@@ -74,7 +74,7 @@ public class JwtService {
             return header.substring(AUTH_HEADER_PREFIX.length());
         }
 
-        throw new BadCredentialsException("Token not found");
+        throw new BadCredentialsException("Вы не передали access-токен!");
     }
 
     public String getPhoneNumber(String token) {

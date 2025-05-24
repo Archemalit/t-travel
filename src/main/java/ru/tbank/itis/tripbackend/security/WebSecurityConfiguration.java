@@ -80,7 +80,7 @@ public class WebSecurityConfiguration {
     public TokenAuthenticationFilter tokenAuthenticationFilter(
             JwtService jwtService,
             AuthenticationManager authenticationManager,
-            @Qualifier("authenticationFailureHandler") AuthenticationFailureHandler failureHandler) {
+            @Qualifier("defaultAuthenticationFailureHandler") AuthenticationFailureHandler failureHandler) {
         SkipPathRequestMatcher requestMatcher = new SkipPathRequestMatcher(ANONYMOUS_PATHS);
 
         return new TokenAuthenticationFilter(
@@ -114,10 +114,10 @@ public class WebSecurityConfiguration {
         return provider;
     }
 
-    @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler() {
-        return new SimpleUrlAuthenticationFailureHandler();
-    }
+//    @Bean
+//    public AuthenticationFailureHandler authenticationFailureHandler() {
+//        return new SimpleUrlAuthenticationFailureHandler();
+//    }
 
     @Bean
     public JWTVerifier jwtVerifier(Algorithm algorithm) {

@@ -56,9 +56,9 @@ public class TripServiceImpl implements TripService {
             throw new ForbiddenAccessException("Доступа нет!");
         }
 
-        if (trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED) {
-            throw new ForbiddenAccessException("Поездка находится в архиве");
-        }
+//        if (trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED) {
+//            throw new ForbiddenAccessException("Поездка находится в архиве");
+//        }
 
         return tripMapper.toDto(trip);
     }
@@ -95,9 +95,9 @@ public class TripServiceImpl implements TripService {
             throw new ValidationException("Бюджет не может быть отрицательным");
         }
 
-        if (existingTrip.getStatus() == ForTripAndInvitationStatus.ARCHIVED) {
-            throw new ForbiddenAccessException("Нельзя изменить поездку в архиве");
-        }
+//        if (existingTrip.getStatus() == ForTripAndInvitationStatus.ARCHIVED) {
+//            throw new ForbiddenAccessException("Нельзя изменить поездку в архиве");
+//        }
 
         existingTrip.setTitle(tripRequest.getTitle());
         existingTrip.setDescription(tripRequest.getDescription());
@@ -118,16 +118,16 @@ public class TripServiceImpl implements TripService {
             throw new ForbiddenAccessException("Доступа нет!");
         }
 
-        if (trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED) {
-            throw new ForbiddenAccessException("Нельзя удалить поездку в архиве");
-        }
+//        if (trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED) {
+//            throw new ForbiddenAccessException("Нельзя удалить поездку в архиве");
+//        }
 
         tripRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    public SimpleResponse archiveTrip(Long tripId, Long userId) {
+    public void archiveTrip(Long tripId, Long userId) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(tripId));
 
@@ -140,10 +140,5 @@ public class TripServiceImpl implements TripService {
 
         trip.setStatus(ForTripAndInvitationStatus.ARCHIVED);
         tripRepository.save(trip);
-
-        return SimpleResponse.builder()
-                .success(true)
-                .message("Поездка успешно архивирована")
-                .build();
     }
 }
