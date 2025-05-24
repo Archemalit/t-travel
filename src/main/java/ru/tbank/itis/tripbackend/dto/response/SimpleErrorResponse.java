@@ -12,9 +12,9 @@ public record SimpleErrorResponse(
         @Schema(description = "HTTP-статус ошибки", example = "404")
         int status,
 
-        @Schema(description = "Название типа ошибки", example = "Поездка не найдена")
+        @Schema(description = "Название типа ошибки", example = "Не найдено")
         String error,
 
-        @Schema(description = "Подробное описание ошибки", example = "Поездка с ID 999 не найдена")
+        @Schema(description = "Подробное описание ошибки", example = "Под таким ID ничего не найдено!")
         String message
 ) {}

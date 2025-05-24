@@ -2,6 +2,7 @@ package ru.tbank.itis.tripbackend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -61,9 +62,22 @@ public class AuthController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtTokenPairDto.class))
                     ),
                     @ApiResponse(
-                            responseCode = "400",
+                            responseCode = "401",
                             description = "Неверные данные для аутентификации",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
+                                    @ExampleObject(
+                                            name = "Example",
+                                            value = """
+                                                    {
+                                                      "timestamp": "2025-05-24T14:24:27.890825",
+                                                      "status": 401,
+                                                      "error": "Unauthorized",
+                                                      "message": "Неверные учетные данные"
+                                                    }
+                                                    """,
+                                            description = "Неверные логин или пароль"
+                                    )
+                            })
                     )
             }
     )
@@ -81,11 +95,22 @@ public class AuthController {
                             description = "Токены успешно обновлены",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtTokenPairDto.class))
                     ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Refresh-токен недействителен или истёк",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class))
-                    )
+
+                    @ApiResponse(responseCode = "401", description = "Refresh-токен недействителен или истёк",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
+                                    @ExampleObject(
+                                            name = "Example",
+                                            value = """
+                                                    {
+                                                      "timestamp": "2025-06-08T12:00:00Z",
+                                                      "status": 401,
+                                                      "error": "Unauthorized",
+                                                      "message": "Вы не передали refresh-токен!"
+                                                    }
+                                                    """,
+                                            description = "Проблемы с refresh-токеном"
+                                    )
+                            }))
             }
     )
     public JwtTokenPairDto refresh() {

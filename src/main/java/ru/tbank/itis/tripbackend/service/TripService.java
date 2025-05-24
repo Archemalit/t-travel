@@ -13,5 +13,5 @@ public interface TripService {
     TripResponse createTrip(TripRequest tripRequest, User user);
     TripResponse updateTrip(Long id, TripRequest tripRequest, Long userId);
     void deleteTrip(Long id, Long userId);
-    SimpleResponse archiveTrip(Long tripId, Long userId);
+    void archiveTrip(Long tripId, Long userId);
 }
