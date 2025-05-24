@@ -3,14 +3,11 @@ package ru.tbank.itis.tripbackend.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.tbank.itis.tripbackend.dictionary.InvitationStatus;
+import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
-import ru.tbank.itis.tripbackend.dto.*;
 import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
 import ru.tbank.itis.tripbackend.dto.request.InviteRequest;
 import ru.tbank.itis.tripbackend.exception.*;
-import ru.tbank.itis.tripbackend.mapper.TripInvitationMapper;
-import ru.tbank.itis.tripbackend.mapper.TripParticipantMapper;
 import ru.tbank.itis.tripbackend.model.*;
 import ru.tbank.itis.tripbackend.repository.*;
 import ru.tbank.itis.tripbackend.service.MemberService;
@@ -44,7 +41,7 @@ public class MemberServiceImpl implements MemberService {
             throw new ValidationException("Пользователь уже является участником поездки или отклонил приглашение");
         }
 
-        if (tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(tripId, invitedUser.getId(), InvitationStatus.ACTIVE)) {
+        if (tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(tripId, invitedUser.getId(), ForTripAndInvitationStatus.ACTIVE)) {
             throw new ValidationException("Активное приглашение для этого пользователя уже существует");
         }
 
@@ -52,7 +49,7 @@ public class MemberServiceImpl implements MemberService {
                 .trip(trip)
                 .invitedUser(invitedUser)
                 .inviter(creator)
-                .status(InvitationStatus.ACTIVE)
+                .status(ForTripAndInvitationStatus.ACTIVE)
                 .build();
 
         tripInvitationRepository.save(invitation);
@@ -88,7 +85,7 @@ public class MemberServiceImpl implements MemberService {
 
         tripInvitationRepository.findAllByTripIdAndInvitedUserId(tripId, userId)
                 .forEach(invitation -> {
-                    invitation.setStatus(InvitationStatus.ARCHIVED);
+                    invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
                     tripInvitationRepository.save(invitation);
                 });
 

@@ -3,7 +3,7 @@ package ru.tbank.itis.tripbackend.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.tbank.itis.tripbackend.dictionary.InvitationStatus;
+import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dto.TripInvitationDto;
 import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
@@ -29,7 +29,7 @@ public class InvitationServiceImpl implements InvitationService {
     private final TripInvitationMapper tripInvitationMapper;
     @Override
     public List<TripInvitationDto> getUserInvitations(Long userId) {
-        return tripInvitationRepository.findAllByInvitedUserIdAndStatus(userId, InvitationStatus.ACTIVE)
+        return tripInvitationRepository.findAllByInvitedUserIdAndStatus(userId, ForTripAndInvitationStatus.ACTIVE)
                 .stream()
                 .map(tripInvitationMapper::toDto)
                 .collect(Collectors.toList());
@@ -45,7 +45,7 @@ public class InvitationServiceImpl implements InvitationService {
             throw new ForbiddenAccessException("Вы не можете принять это приглашение");
         }
 
-        if (invitation.getStatus() != InvitationStatus.ACTIVE) {
+        if (invitation.getStatus() != ForTripAndInvitationStatus.ACTIVE) {
             throw new ValidationException("Приглашение не активно");
         }
 
@@ -57,7 +57,7 @@ public class InvitationServiceImpl implements InvitationService {
         participant.setStatus(TripParticipantStatus.ACCEPTED);
         tripParticipantRepository.save(participant);
 
-        invitation.setStatus(InvitationStatus.ARCHIVED);
+        invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
         tripInvitationRepository.save(invitation);
 
         return SimpleResponse.builder()
@@ -76,7 +76,7 @@ public class InvitationServiceImpl implements InvitationService {
             throw new ForbiddenAccessException("Вы не можете отклонить это приглашение");
         }
 
-        if (invitation.getStatus() != InvitationStatus.ACTIVE) {
+        if (invitation.getStatus() != ForTripAndInvitationStatus.ACTIVE) {
             throw new ValidationException("Приглашение не активно");
         }
 
@@ -88,7 +88,7 @@ public class InvitationServiceImpl implements InvitationService {
         participant.setStatus(TripParticipantStatus.REJECTED);
         tripParticipantRepository.save(participant);
 
-        invitation.setStatus(InvitationStatus.ARCHIVED);
+        invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
         tripInvitationRepository.save(invitation);
 
         return SimpleResponse.builder()

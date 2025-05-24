@@ -3,7 +3,7 @@ package ru.tbank.itis.tripbackend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
-import ru.tbank.itis.tripbackend.dictionary.InvitationStatus;
+import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 
 
 @Getter
@@ -37,6 +37,6 @@ public class TripInvitation {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private InvitationStatus status;
+    private ForTripAndInvitationStatus status;
 
 }
