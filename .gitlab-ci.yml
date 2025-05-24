@@ -58,4 +58,7 @@ deploy-vps:
       -e SPRING_PROFILE=prod \
       -p 8080:8080 \
       -d $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
-  when: manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop"'
+      when: manual
+    - when: never
