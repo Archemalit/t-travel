@@ -27,7 +27,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public SimpleResponse inviteMember(Long tripId, User creator, InviteRequest inviteRequest) {
+    public void inviteMember(Long tripId, User creator, InviteRequest inviteRequest) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(tripId));
 
@@ -39,7 +39,7 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new UserNotFoundException("Пользователь с номером " + inviteRequest.getPhone() + " не найден"));
 
         if (tripParticipantRepository.existsByTripIdAndUserId(tripId, invitedUser.getId())) {
-            throw new ValidationException("Пользователь уже является участником поездки или отклонил приглашение");
+            throw new ValidationException("Пользователь уже является участником поездки или его уже пригласили");
         }
 
         if (tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(tripId, invitedUser.getId(), ForTripAndInvitationStatus.ACTIVE)) {
@@ -62,20 +62,20 @@ public class MemberServiceImpl implements MemberService {
                 .build();
 
         tripParticipantRepository.save(participant);
-
-        return SimpleResponse.builder()
-                .success(true)
-                .message("Приглашение отправлено пользователю " + invitedUser.getFirstName() + " " + invitedUser.getLastName())
-                .build();
     }
 
     @Override
     @Transactional
-    public SimpleResponse removeMember(Long tripId, Long userId, User creator) {
+    public void removeMember(Long tripId, Long userId, User creator) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(tripId));
 
-        if (!trip.getCreator().getId().equals(creator.getId())) {
+        if (trip.getCreator().getId().equals(userId)) {
+            throw new ForbiddenAccessException("Создатель поездки не может удалить себя из поездки," +
+                    " но может удалить всю группу со всеми участниками");
+        }
+
+        if (!trip.getCreator().getId().equals(creator.getId()) && !creator.getId().equals(userId)) {
             throw new ForbiddenAccessException("Только создатель поездки может удалять участников");
         }
 
@@ -89,11 +89,6 @@ public class MemberServiceImpl implements MemberService {
                     invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
                     tripInvitationRepository.save(invitation);
                 });
-
-        return SimpleResponse.builder()
-                .success(true)
-                .message("Участник успешно удален из поездки")
-                .build();
     }
 
     @Override
@@ -101,7 +96,7 @@ public class MemberServiceImpl implements MemberService {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(tripId));
 
-        boolean isParticipant = tripParticipantRepository.existsByTripIdAndUserId(tripId, currentUser.getId());
+        boolean isParticipant = tripParticipantRepository.existsByTripIdAndUserIdAndStatus(tripId, currentUser.getId(), TripParticipantStatus.ACCEPTED);
         if (!isParticipant) {
             throw new ForbiddenAccessException("Только участники поездки могут просматривать список участников");
         }

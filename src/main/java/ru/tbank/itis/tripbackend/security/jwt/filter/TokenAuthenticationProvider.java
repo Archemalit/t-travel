@@ -1,6 +1,7 @@
 package ru.tbank.itis.tripbackend.security.jwt.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -9,6 +10,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
 import ru.tbank.itis.tripbackend.security.details.UserDetailsServiceImpl;
+import ru.tbank.itis.tripbackend.security.exception.AuthMethodNotSupportedException;
 import ru.tbank.itis.tripbackend.security.jwt.JwtAuthenticationToken;
 import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
 
@@ -24,9 +26,16 @@ public class TokenAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String rawToken = (String) authentication.getCredentials();
 
-        if (jwtService.isAccessToken(rawToken)) {
-            throw new BadCredentialsException("It's not an access token!");
+        try {
+            if (jwtService.isAccessToken(rawToken)) {
+                throw new BadCredentialsException("Это не access-токен!");
+            }
+        } catch (TokenExpiredException ex) {
+            throw new BadCredentialsException("Токен истёк", ex);
+        } catch (JWTVerificationException ex) {
+            throw new BadCredentialsException("Некорректный токен", ex);
         }
+
 
         String username = getUsername(rawToken);
         UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);

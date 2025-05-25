@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.tbank.itis.tripbackend.dictionary.InvitationStatus;
+import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
 import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
@@ -91,13 +91,11 @@ class MemberServiceTest {
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
         when(userRepository.findUserByPhoneNumber("79888888888")).thenReturn(Optional.of(invitedUser));
         when(tripParticipantRepository.existsByTripIdAndUserId(1L, 2L)).thenReturn(false);
-        when(tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(1L, 2L, InvitationStatus.ACTIVE))
+        when(tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(1L, 2L, ForTripAndInvitationStatus.ACTIVE))
                 .thenReturn(false);
 
-        SimpleResponse response = memberService.inviteMember(1L, creator, inviteRequest);
+        memberService.inviteMember(1L, creator, inviteRequest);
 
-        assertThat(response.isSuccess()).isTrue();
-        assertThat(response.getMessage()).isEqualTo("Приглашение отправлено пользователю Jane Smith");
         verify(tripInvitationRepository).save(any(TripInvitation.class));
         verify(tripParticipantRepository).save(any(TripParticipant.class));
     }
@@ -138,7 +136,7 @@ class MemberServiceTest {
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
         when(userRepository.findUserByPhoneNumber("79888888888")).thenReturn(Optional.of(invitedUser));
         when(tripParticipantRepository.existsByTripIdAndUserId(1L, 2L)).thenReturn(false);
-        when(tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(1L, 2L, InvitationStatus.ACTIVE))
+        when(tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(1L, 2L, ForTripAndInvitationStatus.ACTIVE))
                 .thenReturn(true);
 
         assertThatThrownBy(() -> memberService.inviteMember(1L, creator, inviteRequest))
