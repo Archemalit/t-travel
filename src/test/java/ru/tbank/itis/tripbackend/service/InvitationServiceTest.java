@@ -4,23 +4,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.tbank.itis.tripbackend.dictionary.InvitationStatus;
+import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
-import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
-import ru.tbank.itis.tripbackend.exception.ForbiddenAccessException;
-import ru.tbank.itis.tripbackend.exception.InvitationNotFoundException;
-import ru.tbank.itis.tripbackend.exception.ParticipantNotFoundException;
-import ru.tbank.itis.tripbackend.exception.ValidationException;
+import ru.tbank.itis.tripbackend.exception.*;
 import ru.tbank.itis.tripbackend.model.Trip;
 import ru.tbank.itis.tripbackend.model.TripInvitation;
 import ru.tbank.itis.tripbackend.model.TripParticipant;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.TripInvitationRepository;
 import ru.tbank.itis.tripbackend.repository.TripParticipantRepository;
-import ru.tbank.itis.tripbackend.service.InvitationService;
 import ru.tbank.itis.tripbackend.service.impl.InvitationServiceImpl;
 
 import java.util.Optional;
@@ -65,7 +61,7 @@ class InvitationServiceTest {
                 .id(1L)
                 .trip(trip)
                 .invitedUser(invitedUser)
-                .status(InvitationStatus.ACTIVE)
+                .status(ForTripAndInvitationStatus.ACTIVE)
                 .build();
 
         participant = TripParticipant.builder()
@@ -81,12 +77,10 @@ class InvitationServiceTest {
         when(tripInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
         when(tripParticipantRepository.findByTripIdAndUserId(100L, 2L)).thenReturn(Optional.of(participant));
 
-        SimpleResponse response = invitationService.acceptInvitation(1L, 2L);
+        invitationService.acceptInvitation(1L, 2L);
 
-        assertThat(response.isSuccess()).isTrue();
-        assertThat(response.getMessage()).isEqualTo("Вы приняли приглашение в поездку Test Trip");
         assertThat(participant.getStatus()).isEqualTo(TripParticipantStatus.ACCEPTED);
-        assertThat(invitation.getStatus()).isEqualTo(InvitationStatus.ARCHIVED);
+        assertThat(invitation.getStatus()).isEqualTo(ForTripAndInvitationStatus.ARCHIVED);
 
         verify(tripParticipantRepository).save(participant);
         verify(tripInvitationRepository).save(invitation);
@@ -121,12 +115,12 @@ class InvitationServiceTest {
     @Test
     @DisplayName("acceptInvitation — приглашение уже не активно — выбрасывает ValidationException")
     void acceptInvitation_invitationNotActive_throwsValidationException() {
-        invitation.setStatus(InvitationStatus.ARCHIVED);
+        invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
         when(tripInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
 
         assertThatThrownBy(() -> invitationService.acceptInvitation(1L, 2L))
-                .isInstanceOf(ValidationException.class)
-                .hasMessage("Приглашение не активно");
+                .isInstanceOf(ExpiredInvitationException.class)
+                .hasMessage("Статус приглашения: ARCHIVED");
 
         verify(tripInvitationRepository, never()).save(any(TripInvitation.class));
         verify(tripParticipantRepository, never()).save(any(TripParticipant.class));
@@ -152,12 +146,10 @@ class InvitationServiceTest {
         when(tripInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
         when(tripParticipantRepository.findByTripIdAndUserId(100L, 2L)).thenReturn(Optional.of(participant));
 
-        SimpleResponse response = invitationService.rejectInvitation(1L, 2L);
+        invitationService.rejectInvitation(1L, 2L);
 
-        assertThat(response.isSuccess()).isTrue();
-        assertThat(response.getMessage()).isEqualTo("Вы отклонили приглашение в поездку Test Trip");
         assertThat(participant.getStatus()).isEqualTo(TripParticipantStatus.REJECTED);
-        assertThat(invitation.getStatus()).isEqualTo(InvitationStatus.ARCHIVED);
+        assertThat(invitation.getStatus()).isEqualTo(ForTripAndInvitationStatus.ARCHIVED);
 
         verify(tripParticipantRepository).save(participant);
         verify(tripInvitationRepository).save(invitation);
@@ -192,7 +184,7 @@ class InvitationServiceTest {
     @Test
     @DisplayName("rejectInvitation — приглашение уже не активно — выбрасывает ValidationException")
     void rejectInvitation_invitationNotActive_throwsValidationException() {
-        invitation.setStatus(InvitationStatus.ARCHIVED);
+        invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
         when(tripInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
 
         assertThatThrownBy(() -> invitationService.rejectInvitation(1L, 2L))

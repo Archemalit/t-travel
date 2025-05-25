@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
 import ru.tbank.itis.tripbackend.dto.request.TripRequest;
@@ -71,6 +72,7 @@ class TripServiceTest {
                 .endDate(endDate)
                 .totalBudget(budget)
                 .creator(mockUser)
+                .status(ForTripAndInvitationStatus.ACTIVE)
                 .build();
 
         mockParticipant = TripParticipant.builder()
@@ -98,6 +100,7 @@ class TripServiceTest {
                 .startDate(startDate)
                 .endDate(endDate)
                 .totalBudget(budget)
+                .status(ForTripAndInvitationStatus.ACTIVE)
                 .build();
     }
 

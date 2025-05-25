@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
-import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
 import ru.tbank.itis.tripbackend.dto.request.InviteRequest;
 import ru.tbank.itis.tripbackend.exception.ForbiddenAccessException;
 import ru.tbank.itis.tripbackend.exception.ParticipantNotFoundException;
@@ -29,7 +28,6 @@ import ru.tbank.itis.tripbackend.service.impl.MemberServiceImpl;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -156,10 +154,8 @@ class MemberServiceTest {
         when(tripParticipantRepository.findByTripIdAndUserId(1L, 2L)).thenReturn(Optional.of(participant));
         when(tripInvitationRepository.findAllByTripIdAndInvitedUserId(1L, 2L)).thenReturn(List.of());
 
-        SimpleResponse response = memberService.removeMember(1L, 2L, creator);
+        memberService.removeMember(1L, 2L, creator);
 
-        assertThat(response.isSuccess()).isTrue();
-        assertThat(response.getMessage()).isEqualTo("Участник успешно удален из поездки");
         verify(tripParticipantRepository).delete(participant);
     }
 

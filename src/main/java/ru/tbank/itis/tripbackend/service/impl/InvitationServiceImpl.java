@@ -43,7 +43,6 @@ public class InvitationServiceImpl implements InvitationService {
         }
 
         if (invitation.getStatus() != ForTripAndInvitationStatus.ACTIVE) {
-            // ТУТ ДОБАВИТЬ СВОЮ ОШИБКУ, ЧТО ПРИГЛАШЕНИЕ НЕ АКТИВНО
             throw new ExpiredInvitationException("Статус приглашения: " + invitation.getStatus());
         }
 
