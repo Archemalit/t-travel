@@ -1,11 +1,13 @@
 package ru.tbank.itis.tripbackend.security.jwt.handler.failure;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -27,7 +29,10 @@ public class TokenAuthenticationFailureHandler implements AuthenticationFailureH
 
         String message = "Неверные учетные данные";
 
-        if (exception instanceof AuthMethodNotSupportedException) {
+        if (exception instanceof BadCredentialsException
+                || exception instanceof AuthMethodNotSupportedException) {
+            message = exception.getMessage();
+        } else if (exception.getCause() instanceof TokenExpiredException) {
             message = exception.getMessage();
         }
 

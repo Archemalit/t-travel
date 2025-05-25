@@ -9,7 +9,7 @@ import ru.tbank.itis.tripbackend.model.User;
 import java.util.List;
 
 public interface MemberService {
-    SimpleResponse inviteMember(Long tripId, User creator, InviteRequest inviteRequest);
-    SimpleResponse removeMember(Long tripId, Long userId, User creator);
+    void inviteMember(Long tripId, User creator, InviteRequest inviteRequest);
+    void removeMember(Long tripId, Long userId, User creator);
     List<TripParticipantDto> getActiveMembers(Long tripId, User currentUser);
 }
