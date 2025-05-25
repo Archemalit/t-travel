@@ -156,6 +156,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ExpiredInvitationException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public SimpleErrorResponse handleExpiredInvitation(ExpiredInvitationException ex) {
+        return new SimpleErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Приглашение не активно",
+                ex.getMessage()
+        );
+    }
+
     @ExceptionHandler(PhoneNumberAlreadyTakenException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ValidationErrorResponse handleValidationException(PhoneNumberAlreadyTakenException ex) {
@@ -166,6 +177,7 @@ public class GlobalExceptionHandler {
                 List.of(new ValidationError(ex.getField(), ex.getRejectedValue(), ex.getMessage()))
         );
     }
+
 
 //    @ExceptionHandler(InvalidRefreshTokenException.class)
 //    @ResponseStatus(HttpStatus.UNAUTHORIZED)

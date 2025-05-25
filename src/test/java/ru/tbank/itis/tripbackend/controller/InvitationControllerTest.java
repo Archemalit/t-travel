@@ -47,8 +47,6 @@ class InvitationControllerTest {
 
     private UserDetailsImpl userDetails;
     private TripInvitationDto invitationDto;
-    private SimpleResponse acceptResponse;
-    private SimpleResponse rejectResponse;
 
     @BeforeEach
     void setUp() {
@@ -72,16 +70,6 @@ class InvitationControllerTest {
                 .inviterId(2L)
                 .status("ACTIVE")
                 .build();
-
-        acceptResponse = SimpleResponse.builder()
-                .success(true)
-                .message("Вы приняли приглашение в поездку Test Trip")
-                .build();
-
-        rejectResponse = SimpleResponse.builder()
-                .success(true)
-                .message("Вы отклонили приглашение в поездку Test Trip")
-                .build();
     }
 
     @Test
@@ -100,13 +88,11 @@ class InvitationControllerTest {
     @Test
     @DisplayName("POST /api/v1/invitations/{invitationId}/accept — успешно принято приглашение — возвращает OK")
     void acceptInvitation_successfullyAccepted_returnsOk() throws Exception {
-        when(invitationService.acceptInvitation(1L, 1L)).thenReturn(acceptResponse);
+        doNothing().when(invitationService).acceptInvitation(1L, 1L);
 
         mockMvc.perform(post("/api/v1/invitations/1/accept")
                         .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Вы приняли приглашение в поездку Test Trip"));
+                .andExpect(status().isOk());
 
         verify(invitationService).acceptInvitation(1L, 1L);
     }
@@ -165,13 +151,11 @@ class InvitationControllerTest {
     @Test
     @DisplayName("POST /api/v1/invitations/{invitationId}/reject — успешно отклонено приглашение — возвращает OK")
     void rejectInvitation_successfullyRejected_returnsOk() throws Exception {
-        when(invitationService.rejectInvitation(1L, 1L)).thenReturn(rejectResponse);
+        doNothing().when(invitationService).rejectInvitation(1L, 1L);
 
         mockMvc.perform(post("/api/v1/invitations/1/reject")
                         .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Вы отклонили приглашение в поездку Test Trip"));
+                .andExpect(status().isOk());
 
         verify(invitationService).rejectInvitation(1L, 1L);
     }

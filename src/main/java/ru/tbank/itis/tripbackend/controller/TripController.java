@@ -277,10 +277,7 @@ public class TripController {
             summary = "Архивирование поездки",
             description = "Переводит поездку в архивный статус, если пользователь — её создатель",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Поездка успешно переведена в архив"
-                    ),
+                    @ApiResponse(responseCode = "200", description = "Поездка успешно переведена в архив"),
                     @ApiResponse(responseCode = "401", description = "Пользователь не авторизован",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
                                     @ExampleObject(
