@@ -43,7 +43,6 @@ class MemberControllerTest {
 
     private UserDetailsImpl userDetails;
     private InviteRequest inviteRequest;
-    private SimpleResponse response;
 
     @BeforeEach
     void setUp() {
@@ -66,26 +65,18 @@ class MemberControllerTest {
         inviteRequest = InviteRequest.builder()
                 .phone("79998887766")
                 .build();
-
-        response = SimpleResponse.builder()
-                .success(true)
-                .message("Приглашение отправлено пользователю Ivan Ivanov")
-                .build();
     }
 
     @Test
     @DisplayName("POST /trips/{tripId}/members — успешно приглашён новый участник — возвращает CREATED")
     void inviteMember_shouldReturnCreated() throws Exception {
-        when(memberService.inviteMember(eq(1L), any(User.class), eq(inviteRequest)))
-                .thenReturn(response);
+        doNothing().when(memberService).inviteMember(eq(1L), any(User.class), eq(inviteRequest));
 
         mockMvc.perform(post("/api/v1/trips/1/members")
                         .with(csrf())
                         .content(objectMapper.writeValueAsString(inviteRequest))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Приглашение отправлено пользователю Ivan Ivanov"));
+                .andExpect(status().isCreated());
 
         verify(memberService).inviteMember(eq(1L), any(User.class), eq(inviteRequest));
     }
@@ -152,7 +143,7 @@ class MemberControllerTest {
     @Test
     @DisplayName("DELETE /trips/{tripId}/members/{userId} — успешно удален участник — возвращает NO_CONTENT")
     void removeMember_shouldDeleteSuccessfully() throws Exception {
-        when(memberService.removeMember(eq(1L), eq(2L), any(User.class))).thenReturn(response);
+        doNothing().when(memberService).removeMember(eq(1L), eq(2L), any(User.class));
 
         mockMvc.perform(delete("/api/v1/trips/1/members/2")
                         .with(csrf())

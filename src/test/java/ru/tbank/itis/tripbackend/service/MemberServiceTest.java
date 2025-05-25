@@ -7,10 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.tbank.itis.tripbackend.dictionary.InvitationStatus;
+import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
-import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
 import ru.tbank.itis.tripbackend.dto.request.InviteRequest;
 import ru.tbank.itis.tripbackend.exception.ForbiddenAccessException;
 import ru.tbank.itis.tripbackend.exception.ParticipantNotFoundException;
@@ -29,7 +28,6 @@ import ru.tbank.itis.tripbackend.service.impl.MemberServiceImpl;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -91,13 +89,11 @@ class MemberServiceTest {
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
         when(userRepository.findUserByPhoneNumber("79888888888")).thenReturn(Optional.of(invitedUser));
         when(tripParticipantRepository.existsByTripIdAndUserId(1L, 2L)).thenReturn(false);
-        when(tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(1L, 2L, InvitationStatus.ACTIVE))
+        when(tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(1L, 2L, ForTripAndInvitationStatus.ACTIVE))
                 .thenReturn(false);
 
-        SimpleResponse response = memberService.inviteMember(1L, creator, inviteRequest);
+        memberService.inviteMember(1L, creator, inviteRequest);
 
-        assertThat(response.isSuccess()).isTrue();
-        assertThat(response.getMessage()).isEqualTo("Приглашение отправлено пользователю Jane Smith");
         verify(tripInvitationRepository).save(any(TripInvitation.class));
         verify(tripParticipantRepository).save(any(TripParticipant.class));
     }
@@ -138,7 +134,7 @@ class MemberServiceTest {
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
         when(userRepository.findUserByPhoneNumber("79888888888")).thenReturn(Optional.of(invitedUser));
         when(tripParticipantRepository.existsByTripIdAndUserId(1L, 2L)).thenReturn(false);
-        when(tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(1L, 2L, InvitationStatus.ACTIVE))
+        when(tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(1L, 2L, ForTripAndInvitationStatus.ACTIVE))
                 .thenReturn(true);
 
         assertThatThrownBy(() -> memberService.inviteMember(1L, creator, inviteRequest))
@@ -158,10 +154,8 @@ class MemberServiceTest {
         when(tripParticipantRepository.findByTripIdAndUserId(1L, 2L)).thenReturn(Optional.of(participant));
         when(tripInvitationRepository.findAllByTripIdAndInvitedUserId(1L, 2L)).thenReturn(List.of());
 
-        SimpleResponse response = memberService.removeMember(1L, 2L, creator);
+        memberService.removeMember(1L, 2L, creator);
 
-        assertThat(response.isSuccess()).isTrue();
-        assertThat(response.getMessage()).isEqualTo("Участник успешно удален из поездки");
         verify(tripParticipantRepository).delete(participant);
     }
 

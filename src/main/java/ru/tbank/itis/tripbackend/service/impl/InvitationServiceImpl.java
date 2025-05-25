@@ -7,10 +7,7 @@ import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dto.TripInvitationDto;
 import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
-import ru.tbank.itis.tripbackend.exception.ForbiddenAccessException;
-import ru.tbank.itis.tripbackend.exception.InvitationNotFoundException;
-import ru.tbank.itis.tripbackend.exception.ParticipantNotFoundException;
-import ru.tbank.itis.tripbackend.exception.ValidationException;
+import ru.tbank.itis.tripbackend.exception.*;
 import ru.tbank.itis.tripbackend.mapper.TripInvitationMapper;
 import ru.tbank.itis.tripbackend.model.TripInvitation;
 import ru.tbank.itis.tripbackend.model.TripParticipant;
@@ -37,7 +34,7 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Override
     @Transactional
-    public SimpleResponse acceptInvitation(Long invitationId, Long userId) {
+    public void acceptInvitation(Long invitationId, Long userId) {
         TripInvitation invitation = tripInvitationRepository.findById(invitationId)
                 .orElseThrow(() -> new InvitationNotFoundException(invitationId));
 
@@ -46,7 +43,7 @@ public class InvitationServiceImpl implements InvitationService {
         }
 
         if (invitation.getStatus() != ForTripAndInvitationStatus.ACTIVE) {
-            throw new ValidationException("Приглашение не активно");
+            throw new ExpiredInvitationException("Статус приглашения: " + invitation.getStatus());
         }
 
         TripParticipant participant = tripParticipantRepository.findByTripIdAndUserId(
@@ -59,16 +56,11 @@ public class InvitationServiceImpl implements InvitationService {
 
         invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
         tripInvitationRepository.save(invitation);
-
-        return SimpleResponse.builder()
-                .success(true)
-                .message("Вы приняли приглашение в поездку " + invitation.getTrip().getTitle())
-                .build();
     }
 
     @Override
     @Transactional
-    public SimpleResponse rejectInvitation(Long invitationId, Long userId) {
+    public void rejectInvitation(Long invitationId, Long userId) {
         TripInvitation invitation = tripInvitationRepository.findById(invitationId)
                 .orElseThrow(() -> new InvitationNotFoundException(invitationId));
 
@@ -90,10 +82,5 @@ public class InvitationServiceImpl implements InvitationService {
 
         invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
         tripInvitationRepository.save(invitation);
-
-        return SimpleResponse.builder()
-                .success(true)
-                .message("Вы отклонили приглашение в поездку " + invitation.getTrip().getTitle())
-                .build();
     }
 }

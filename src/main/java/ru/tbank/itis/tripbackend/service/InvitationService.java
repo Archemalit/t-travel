@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface InvitationService {
     List<TripInvitationDto> getUserInvitations(Long userId);
-    SimpleResponse acceptInvitation(Long invitationId, Long userId);
-    SimpleResponse rejectInvitation(Long invitationId, Long userId);
+    void acceptInvitation(Long invitationId, Long userId);
+    void rejectInvitation(Long invitationId, Long userId);
 }
