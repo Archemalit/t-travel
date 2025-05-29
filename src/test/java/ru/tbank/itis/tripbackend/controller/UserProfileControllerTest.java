@@ -110,7 +110,7 @@ class UserProfileControllerTest {
         when(userService.updateProfile(eq(1L), any(UserUpdateProfileRequest.class)))
                 .thenReturn(mockResponse);
 
-        mockMvc.perform(patch("/api/users/me")
+        mockMvc.perform(patch("/api/users/edit")
                         .with(csrf().asHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -125,7 +125,7 @@ class UserProfileControllerTest {
         invalidRequest.setFirstName("");
         invalidRequest.setLastName("");
 
-        mockMvc.perform(patch("/api/users/me")
+        mockMvc.perform(patch("/api/users/edit")
                         .with(csrf().asHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))

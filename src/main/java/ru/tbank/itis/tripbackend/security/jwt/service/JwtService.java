@@ -90,5 +90,9 @@ public class JwtService {
                 .filter(claim -> REFRESH_TYPE_CLAIM.equals(claim.asString()))
                 .isPresent();
     }
+
+    public void invalidateToken(String phoneNumber) {
+
+    }
 }
 

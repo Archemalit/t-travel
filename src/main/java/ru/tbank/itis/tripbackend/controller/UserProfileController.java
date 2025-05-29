@@ -10,18 +10,18 @@ import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
 import ru.tbank.itis.tripbackend.service.UserService;
 
 @RestController
-@RequestMapping("/api/users/me")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserProfileController {
 
     private final UserService userService;
 
-    @GetMapping()
+    @GetMapping("/me")
     public UserProfileResponse getUserProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.getUserProfile(userDetails.getUser().getId());
     }
 
-    @PatchMapping
+    @PatchMapping("/edit")
     public UserProfileResponse updateProfile(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody UserUpdateProfileRequest request) {
