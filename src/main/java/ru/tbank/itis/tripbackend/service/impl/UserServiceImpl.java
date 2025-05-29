@@ -3,9 +3,11 @@ package ru.tbank.itis.tripbackend.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
 import ru.tbank.itis.tripbackend.dto.JwtTokenPairDto;
 import ru.tbank.itis.tripbackend.dto.request.UserRegistrationRequest;
+import ru.tbank.itis.tripbackend.dto.request.UserUpdateProfileRequest;
 import ru.tbank.itis.tripbackend.dto.response.UserExistsResponse;
 import ru.tbank.itis.tripbackend.dto.response.UserProfileResponse;
 import ru.tbank.itis.tripbackend.exception.PhoneNumberAlreadyTakenException;
@@ -51,6 +53,26 @@ public class UserServiceImpl implements UserService {
     public UserProfileResponse getUserProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
+
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().name())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public UserProfileResponse updateProfile(Long userId, UserUpdateProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+
+        userRepository.save(user);
 
         return UserProfileResponse.builder()
                 .id(user.getId())

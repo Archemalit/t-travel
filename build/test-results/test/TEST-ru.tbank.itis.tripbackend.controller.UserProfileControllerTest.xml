@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ru.tbank.itis.tripbackend.controller.UserProfileControllerTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2025-05-29T14:57:58.770Z" hostname="DESKTOP-J61GGJR" time="0.946">
+  <properties/>
+  <testcase name="getCurrentUserProfile_shouldReturnUserProfile()" classname="ru.tbank.itis.tripbackend.controller.UserProfileControllerTest" time="0.56"/>
+  <testcase name="updateProfile_shouldUpdateAndReturnProfile()" classname="ru.tbank.itis.tripbackend.controller.UserProfileControllerTest" time="0.264"/>
+  <testcase name="updateProfile_whenInvalidData_shouldReturnBadRequest()" classname="ru.tbank.itis.tripbackend.controller.UserProfileControllerTest" time="0.079"/>
+  <testcase name="getCurrentUserProfile_whenUserNotFound_shouldReturnNotFound()" classname="ru.tbank.itis.tripbackend.controller.UserProfileControllerTest" time="0.033"/>
+  <system-out><![CDATA[17:57:51.782 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [ru.tbank.itis.tripbackend.controller.UserProfileControllerTest]: UserProfileControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+17:57:52.302 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration ru.tbank.itis.tripbackend.TripBackendApplication for test class ru.tbank.itis.tripbackend.controller.UserProfileControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.3)
+
+2025-05-29T17:57:53.420+03:00  INFO 12608 --- [trip-backend] [    Test worker] r.t.i.t.c.UserProfileControllerTest      : Starting UserProfileControllerTest using Java 21.0.6 with PID 12608 (started by Тимур in C:\Users\Тимур\Desktop\trip-backend)
+2025-05-29T17:57:53.423+03:00  INFO 12608 --- [trip-backend] [    Test worker] r.t.i.t.c.UserProfileControllerTest      : The following 1 profile is active: "dev"
+2025-05-29T17:57:58.202+03:00  WARN 12608 --- [trip-backend] [    Test worker] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 022afcc0-8b55-4001-802b-e4e8ca45a752
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-05-29T17:57:58.265+03:00  INFO 12608 --- [trip-backend] [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2025-05-29T17:57:58.683+03:00  INFO 12608 --- [trip-backend] [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2025-05-29T17:57:58.683+03:00  INFO 12608 --- [trip-backend] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2025-05-29T17:57:58.686+03:00  INFO 12608 --- [trip-backend] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2025-05-29T17:57:58.751+03:00  INFO 12608 --- [trip-backend] [    Test worker] r.t.i.t.c.UserProfileControllerTest      : Started UserProfileControllerTest in 6.276 seconds (process running for 9.186)
+]]></system-out>
+  <system-err><![CDATA[Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build what is described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\?????\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.15.11\a38b16385e867f59a641330f0362ebe742788ed8\byte-buddy-agent-1.15.11.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>
