@@ -7,7 +7,9 @@ import ru.tbank.itis.tripbackend.dictionary.UserRole;
 import ru.tbank.itis.tripbackend.dto.JwtTokenPairDto;
 import ru.tbank.itis.tripbackend.dto.request.UserRegistrationRequest;
 import ru.tbank.itis.tripbackend.dto.response.UserExistsResponse;
+import ru.tbank.itis.tripbackend.dto.response.UserProfileResponse;
 import ru.tbank.itis.tripbackend.exception.PhoneNumberAlreadyTakenException;
+import ru.tbank.itis.tripbackend.exception.UserNotFoundException;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
 import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
@@ -43,6 +45,20 @@ public class UserServiceImpl implements UserService {
     public UserExistsResponse doesUserExistByPhoneNumber(String phoneNumber) {
         boolean exists = userRepository.existsByPhoneNumber(phoneNumber);
         return new UserExistsResponse(exists);
+    }
+
+    @Override
+    public UserProfileResponse getUserProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().name())
+                .build();
     }
 
 //    @Override
