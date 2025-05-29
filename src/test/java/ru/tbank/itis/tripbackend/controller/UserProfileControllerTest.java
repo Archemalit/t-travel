@@ -14,16 +14,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
+import ru.tbank.itis.tripbackend.dto.request.UserUpdateProfileRequest;
 import ru.tbank.itis.tripbackend.dto.response.UserProfileResponse;
 import ru.tbank.itis.tripbackend.exception.UserNotFoundException;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
 import ru.tbank.itis.tripbackend.service.UserService;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserProfileController.class)
 @ExtendWith(MockitoExtension.class)
@@ -31,7 +34,6 @@ class UserProfileControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @MockitoBean
     private UserService userService;
 
@@ -89,5 +91,44 @@ class UserProfileControllerTest {
         mockMvc.perform(get("/api/users/me")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateProfile_shouldUpdateAndReturnProfile() throws Exception {
+        UserUpdateProfileRequest request = new UserUpdateProfileRequest();
+        request.setFirstName("UpdatedName");
+        request.setLastName("UpdatedLastName");
+
+        UserProfileResponse mockResponse = UserProfileResponse.builder()
+                .id(1L)
+                .firstName("UpdatedName")
+                .lastName("UpdatedLastName")
+                .phoneNumber("79999999999")
+                .role("USER")
+                .build();
+
+        when(userService.updateProfile(eq(1L), any(UserUpdateProfileRequest.class)))
+                .thenReturn(mockResponse);
+
+        mockMvc.perform(patch("/api/users/me")
+                        .with(csrf().asHeader())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("UpdatedName"))
+                .andExpect(jsonPath("$.lastName").value("UpdatedLastName"));
+    }
+
+    @Test
+    void updateProfile_whenInvalidData_shouldReturnBadRequest() throws Exception {
+        UserUpdateProfileRequest invalidRequest = new UserUpdateProfileRequest();
+        invalidRequest.setFirstName("");
+        invalidRequest.setLastName("");
+
+        mockMvc.perform(patch("/api/users/me")
+                        .with(csrf().asHeader())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest());
     }
 }
