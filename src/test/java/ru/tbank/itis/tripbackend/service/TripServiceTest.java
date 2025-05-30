@@ -87,7 +87,6 @@ class TripServiceTest {
 
         mockTripRequest = TripRequest.builder()
                 .title("Updated Trip")
-                .description("Updated description")
                 .startDate(startDate)
                 .endDate(endDate)
                 .totalBudget(2000.0)
@@ -96,7 +95,6 @@ class TripServiceTest {
         mockTripResponse = TripResponse.builder()
                 .id(1L)
                 .title("Test Trip")
-                .description("A test description")
                 .startDate(startDate)
                 .endDate(endDate)
                 .totalBudget(budget)
@@ -169,7 +167,6 @@ class TripServiceTest {
         TripResponse result = tripService.updateTrip(1L, mockTripRequest, 1L);
 
         assertThat(result.getTitle()).isEqualTo("Updated Trip");
-        assertThat(result.getDescription()).isEqualTo("Updated description");
         verify(tripRepository).save(mockTrip);
     }
 
