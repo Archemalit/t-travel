@@ -10,14 +10,18 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.itis.tripbackend.dto.JwtTokenPairDto;
+import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
 import ru.tbank.itis.tripbackend.dto.request.UserLoginRequest;
 import ru.tbank.itis.tripbackend.dto.request.UserRegistrationRequest;
 import ru.tbank.itis.tripbackend.dto.response.SimpleErrorResponse;
 import ru.tbank.itis.tripbackend.dto.response.UserExistsResponse;
 import ru.tbank.itis.tripbackend.dto.response.ValidationErrorResponse;
+import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
+import ru.tbank.itis.tripbackend.service.AuthService;
 import ru.tbank.itis.tripbackend.service.UserService;
 
 @RestController
@@ -28,6 +32,8 @@ import ru.tbank.itis.tripbackend.service.UserService;
 public class AuthController {
 
     private final UserService userService;
+
+    private final AuthService authService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -138,5 +144,10 @@ public class AuthController {
             @RequestParam @Pattern(regexp = "^7\\d{10}$",
                     message = "Номер телефона должен быть в формате 7XXXXXXXXXX") String phone) {
         return userService.doesUserExistByPhoneNumber(phone);
+    }
+
+    @PostMapping("/logout")
+    public SimpleResponse logout(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return authService.logout(userDetails);
     }
 }
