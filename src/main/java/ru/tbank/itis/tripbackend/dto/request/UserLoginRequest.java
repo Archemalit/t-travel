@@ -11,6 +11,9 @@ public record UserLoginRequest(
 
         @NotBlank(message = "Пароль обязателен")
         @Schema(description = "Пароль пользователя", example = "password123")
-        String password
+        String password,
 
+        @NotBlank(message = "Повтор пароля обязателен")
+        @Schema(description = "Повтор пароля", example = "password123")
+        String repeatPassword
 ) {}

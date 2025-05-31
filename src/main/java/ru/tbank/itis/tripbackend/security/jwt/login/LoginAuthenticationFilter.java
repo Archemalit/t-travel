@@ -47,14 +47,14 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingF
 
         UserLoginRequest loginRequest = JsonUtil.read(request.getReader(), UserLoginRequest.class);
 
+        if (!loginRequest.password().equals(loginRequest.repeatPassword())) {
+            throw new BadCredentialsException("Пароли не совпадают");
+        }
+
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(loginRequest.phoneNumber(), loginRequest.password());
 
-        try {
-            return getAuthenticationManager().authenticate(token);
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Неверные данные!");
-        }
+        return getAuthenticationManager().authenticate(token);
     }
 
     @Override

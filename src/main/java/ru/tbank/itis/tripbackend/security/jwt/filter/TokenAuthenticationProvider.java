@@ -30,9 +30,9 @@ public class TokenAuthenticationProvider implements AuthenticationProvider {
                 throw new BadCredentialsException("Это не access-токен!");
             }
         } catch (TokenExpiredException ex) {
-            throw new BadCredentialsException("Токен истёк");
+            throw new BadCredentialsException("Токен истёк", ex);
         } catch (JWTVerificationException ex) {
-            throw new BadCredentialsException("Некорректный токен");
+            throw new BadCredentialsException("Некорректный токен", ex);
         }
 
 
@@ -45,7 +45,7 @@ public class TokenAuthenticationProvider implements AuthenticationProvider {
         try {
             return jwtService.getPhoneNumber(rawToken);
         } catch (JWTVerificationException e) {
-            throw new BadCredentialsException("Некорректный токен");
+            throw new BadCredentialsException("Invalid token");
         }
     }
 
