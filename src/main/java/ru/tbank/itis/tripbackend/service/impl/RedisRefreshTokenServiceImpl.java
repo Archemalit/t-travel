@@ -1,7 +1,5 @@
 package ru.tbank.itis.tripbackend.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -16,7 +14,6 @@ import java.util.Optional;
 public class RedisRefreshTokenServiceImpl implements RedisRefreshTokenService {
     private final RedisTemplate<String, String> redisTemplate;
     private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
-    private static final String REFRESH_TOKEN_BLACKLIST_PREFIX = "blacklist:";
 
     public void save(String refreshToken, String phone, LocalDateTime expiredAt) {
         String key = REFRESH_TOKEN_PREFIX + refreshToken;

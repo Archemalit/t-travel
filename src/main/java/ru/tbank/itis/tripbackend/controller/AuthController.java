@@ -6,12 +6,10 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.itis.tripbackend.dto.JwtTokenPairDto;
@@ -20,7 +18,6 @@ import ru.tbank.itis.tripbackend.dto.request.UserRegistrationRequest;
 import ru.tbank.itis.tripbackend.dto.response.SimpleErrorResponse;
 import ru.tbank.itis.tripbackend.dto.response.UserExistsResponse;
 import ru.tbank.itis.tripbackend.dto.response.ValidationErrorResponse;
-import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
 import ru.tbank.itis.tripbackend.service.UserService;
 
 @RestController
@@ -142,9 +139,4 @@ public class AuthController {
                     message = "Номер телефона должен быть в формате 7XXXXXXXXXX") String phone) {
         return userService.doesUserExistByPhoneNumber(phone);
     }
-
-//    @GetMapping("/logout")
-//    public void logout(HttpServletRequest request) {
-//        userService.logout(request);
-//    }
 }

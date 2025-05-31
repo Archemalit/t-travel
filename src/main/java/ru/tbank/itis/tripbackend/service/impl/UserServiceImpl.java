@@ -1,6 +1,5 @@
 package ru.tbank.itis.tripbackend.service.impl;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,9 +14,7 @@ import ru.tbank.itis.tripbackend.exception.PhoneNumberAlreadyTakenException;
 import ru.tbank.itis.tripbackend.exception.UserNotFoundException;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
-import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
 import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
-import ru.tbank.itis.tripbackend.service.RedisRefreshTokenService;
 import ru.tbank.itis.tripbackend.service.UserService;
 
 @Service
@@ -26,7 +23,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
-//    private final RedisRefreshTokenService redisRefreshTokenService;
     @Override
     public JwtTokenPairDto register(UserRegistrationRequest request) {
         if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
@@ -86,10 +82,4 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole().name())
                 .build();
     }
-
-//    @Override
-//    public void logout(HttpServletRequest request) {
-//        String refreshToken = jwtService.getRawToken(request);
-//        redisRefreshTokenService.delete(refreshToken);
-//    }
 }
