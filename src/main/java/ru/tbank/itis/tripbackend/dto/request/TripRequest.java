@@ -18,10 +18,6 @@ public class TripRequest {
     @Schema(description = "Название поездки", example = "Поездка в Москву")
     private String title;
 
-    @Size(max = 500, message = "Описание должно быть менее 500 символов")
-    @Schema(description = "Описание поездки", example = "Путешествие на выходные с друзьями")
-    private String description;
-
     @NotNull(message = "Дата начала обязательна")
     @FutureOrPresent(message = "Дата начала должна быть в настоящем или будущем")
     @Schema(description = "Дата начала поездки", example = "2025-07-06")

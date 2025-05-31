@@ -99,7 +99,6 @@ public class TripServiceImpl implements TripService {
 //        }
 
         existingTrip.setTitle(tripRequest.getTitle());
-        existingTrip.setDescription(tripRequest.getDescription());
         existingTrip.setStartDate(tripRequest.getStartDate());
         existingTrip.setEndDate(tripRequest.getEndDate());
         existingTrip.setTotalBudget(tripRequest.getTotalBudget());

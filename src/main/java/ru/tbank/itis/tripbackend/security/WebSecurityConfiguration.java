@@ -20,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.tbank.itis.tripbackend.security.jwt.SkipPathRequestMatcher;
 import ru.tbank.itis.tripbackend.security.jwt.filter.TokenAuthenticationFilter;
