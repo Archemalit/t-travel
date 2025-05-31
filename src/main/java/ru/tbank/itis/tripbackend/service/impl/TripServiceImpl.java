@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
-import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
 import ru.tbank.itis.tripbackend.dto.request.TripRequest;
 import ru.tbank.itis.tripbackend.dto.response.TripResponse;
 import ru.tbank.itis.tripbackend.exception.ForbiddenAccessException;
@@ -100,7 +99,6 @@ public class TripServiceImpl implements TripService {
 //        }
 
         existingTrip.setTitle(tripRequest.getTitle());
-        existingTrip.setDescription(tripRequest.getDescription());
         existingTrip.setStartDate(tripRequest.getStartDate());
         existingTrip.setEndDate(tripRequest.getEndDate());
         existingTrip.setTotalBudget(tripRequest.getTotalBudget());
