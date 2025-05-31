@@ -10,7 +10,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
 import ru.tbank.itis.tripbackend.security.details.UserDetailsServiceImpl;
-import ru.tbank.itis.tripbackend.security.exception.AuthMethodNotSupportedException;
 import ru.tbank.itis.tripbackend.security.jwt.JwtAuthenticationToken;
 import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
 

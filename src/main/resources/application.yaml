@@ -17,6 +17,9 @@ spring:
       ddl-auto: update
     open-in-view: false
     show-sql: true
+  redis:
+    host: redis
+    port: 6379
 
 server:
   port: 8080
