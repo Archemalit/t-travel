@@ -1,5 +1,6 @@
 package ru.tbank.itis.tripbackend.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,9 @@ import ru.tbank.itis.tripbackend.exception.PhoneNumberAlreadyTakenException;
 import ru.tbank.itis.tripbackend.exception.UserNotFoundException;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
+import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
 import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
+import ru.tbank.itis.tripbackend.service.RedisRefreshTokenService;
 import ru.tbank.itis.tripbackend.service.UserService;
 
 @Service
@@ -23,6 +26,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
+//    private final RedisRefreshTokenService redisRefreshTokenService;
     @Override
     public JwtTokenPairDto register(UserRegistrationRequest request) {
         if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
@@ -84,15 +88,8 @@ public class UserServiceImpl implements UserService {
     }
 
 //    @Override
-//    public AuthResponse login(UserLoginRequest request) {
-//        User user = userRepository.findUserByPhoneNumber(request.phoneNumber())
-//                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
-//
-//        if (!encoder.matches(request.password(), user.getPassword())) {
-//            throw new IllegalArgumentException("Неверный пароль");
-//        }
-//
-//        JwtTokenPairDto jwtPair = jwtService.getTokenPair(request.phoneNumber());
-//        return new AuthResponse(jwtPair.accessToken(), jwtPair.refreshToken());
+//    public void logout(HttpServletRequest request) {
+//        String refreshToken = jwtService.getRawToken(request);
+//        redisRefreshTokenService.delete(refreshToken);
 //    }
 }
