@@ -65,6 +65,7 @@ class TripControllerTest {
 
         tripRequest = TripRequest.builder()
                 .title("Test Trip")
+                .description("Description")
                 .startDate(start)
                 .endDate(end)
                 .totalBudget(500.0)
@@ -73,6 +74,7 @@ class TripControllerTest {
         tripResponse = TripResponse.builder()
                 .id(1L)
                 .title("Test Trip")
+                .description("Description")
                 .startDate(start)
                 .endDate(end)
                 .totalBudget(500.0)
