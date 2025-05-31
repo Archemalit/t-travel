@@ -32,14 +32,4 @@ public class RedisRefreshTokenServiceImpl implements RedisRefreshTokenService {
         String key = REFRESH_TOKEN_PREFIX + refreshToken;
         redisTemplate.delete(key);
     }
-
-//    public void block(String refreshToken, String username, LocalDateTime expiredAt) {
-//        String key = REFRESH_TOKEN_BLACKLIST_PREFIX + refreshToken;
-//        redisTemplate.opsForValue().set(key, username, Duration.between(LocalDateTime.now(), expiredAt));
-//    }
-//
-//    public boolean inBlocked(String refreshToken) {
-//        String key = REFRESH_TOKEN_BLACKLIST_PREFIX + refreshToken;
-//        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
-//    }
 }
