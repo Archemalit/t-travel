@@ -30,6 +30,10 @@ public class TripResponse {
     @Schema(description = "Название поездки", example = "Поездка в Москву")
     private String title;
 
+    @Size(max = 500, message = "Описание должно быть менее 500 символов")
+    @Schema(description = "Описание поездки", example = "Путешествие на выходные с друзьями")
+    private String description;
+
     @NotNull(message = "Дата начала обязательна")
     @Schema(description = "Дата начала поездки", example = "2025-07-06")
     private LocalDate startDate;
