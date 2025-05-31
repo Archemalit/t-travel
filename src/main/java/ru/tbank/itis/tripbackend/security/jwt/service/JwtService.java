@@ -8,14 +8,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.tbank.itis.tripbackend.dto.JwtTokenPairDto;
-import ru.tbank.itis.tripbackend.model.RefreshToken;
-import ru.tbank.itis.tripbackend.model.User;
-import ru.tbank.itis.tripbackend.repository.RefreshTokenRepository;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
+import ru.tbank.itis.tripbackend.service.RedisRefreshTokenService;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 
@@ -37,7 +36,7 @@ public class JwtService {
     private final Algorithm algorithm;
     private final JWTVerifier jwtVerifier;
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisRefreshTokenService redisRefreshTokenService;
 
     public JwtTokenPairDto getTokenPair(String phoneNumber) {
         return new JwtTokenPairDto(
@@ -55,14 +54,15 @@ public class JwtService {
     }
 
     private String createRefreshToken(String phoneNumber) {
+        LocalDateTime expiresAt = LocalDateTime.now().plusDays(10);
+        Date expiresAtDate = Date.from(expiresAt.atZone(ZoneId.systemDefault()).toInstant());
+
         String refreshToken = JWT.create()
-                .withExpiresAt(new Date(
-                        new Date().getTime() + 1000 * 60 * 60 * 24 * 10))
+                .withExpiresAt(expiresAtDate)
                 .withClaim(PHONE_NUMBER_CLAIM, phoneNumber)
                 .withClaim(TYPE_CLAIM, REFRESH_TYPE_CLAIM)
                 .sign(algorithm);
-        RefreshToken refreshTokenEntity = RefreshToken.builder().token(refreshToken).build();
-        refreshTokenRepository.save(refreshTokenEntity);
+        redisRefreshTokenService.save(refreshToken, phoneNumber, expiresAt);
 
         return refreshToken;
     }
@@ -89,10 +89,6 @@ public class JwtService {
                 .map(jwt -> jwt.getClaim(TYPE_CLAIM))
                 .filter(claim -> REFRESH_TYPE_CLAIM.equals(claim.asString()))
                 .isPresent();
-    }
-
-    public void invalidateToken(String phoneNumber) {
-
     }
 }
 

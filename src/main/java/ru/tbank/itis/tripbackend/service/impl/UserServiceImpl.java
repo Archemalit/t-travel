@@ -82,17 +82,4 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole().name())
                 .build();
     }
-
-//    @Override
-//    public AuthResponse login(UserLoginRequest request) {
-//        User user = userRepository.findUserByPhoneNumber(request.phoneNumber())
-//                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
-//
-//        if (!encoder.matches(request.password(), user.getPassword())) {
-//            throw new IllegalArgumentException("Неверный пароль");
-//        }
-//
-//        JwtTokenPairDto jwtPair = jwtService.getTokenPair(request.phoneNumber());
-//        return new AuthResponse(jwtPair.accessToken(), jwtPair.refreshToken());
-//    }
 }
