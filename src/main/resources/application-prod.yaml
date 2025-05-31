@@ -13,6 +13,10 @@ spring:
       ddl-auto: create-drop
     open-in-view: false
     show-sql: true
+  data:
+    redis:
+      host: redis
+      port: 6379
 
 server:
   port: 8080

@@ -20,14 +20,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import ru.tbank.itis.tripbackend.repository.RefreshTokenRepository;
 import ru.tbank.itis.tripbackend.security.jwt.SkipPathRequestMatcher;
 import ru.tbank.itis.tripbackend.security.jwt.filter.TokenAuthenticationFilter;
 import ru.tbank.itis.tripbackend.security.jwt.login.LoginAuthenticationFilter;
 import ru.tbank.itis.tripbackend.security.jwt.login.RefreshTokenAuthenticationFilter;
 import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
+import ru.tbank.itis.tripbackend.service.RedisRefreshTokenService;
 
 import java.util.List;
 
@@ -92,10 +91,10 @@ public class WebSecurityConfiguration {
             AuthenticationManager authenticationManager,
             @Qualifier("refreshTokenAuthenticationSuccessHandler") AuthenticationSuccessHandler successHandler,
             @Qualifier("refreshTokenAuthenticationFailureHandler") AuthenticationFailureHandler failureHandler,
-            RefreshTokenRepository refreshTokenRepository,
+            RedisRefreshTokenService redisRefreshTokenService,
             JwtService jwtService) {
         return new RefreshTokenAuthenticationFilter(
-                "/api/v1/refresh", authenticationManager, successHandler, failureHandler, refreshTokenRepository, jwtService);
+                "/api/v1/refresh", authenticationManager, successHandler, failureHandler, redisRefreshTokenService, jwtService);
     }
 
     @Bean
