@@ -83,8 +83,8 @@ class TripServiceTest {
                 .build();
 
         Set<TripParticipant> participants = new HashSet<>(Set.of(mockParticipant));
-        mockTrip.setParticipants(participants);
 
+        mockTrip.setParticipants(participants);
         mockTripRequest = TripRequest.builder()
                 .title("Updated Trip")
                 .description("Updated description")
@@ -92,7 +92,6 @@ class TripServiceTest {
                 .endDate(endDate)
                 .totalBudget(2000.0)
                 .build();
-
         mockTripResponse = TripResponse.builder()
                 .id(1L)
                 .title("Test Trip")

@@ -45,16 +45,37 @@ public class UserServiceImpl implements UserService {
         return new UserExistsResponse(exists);
     }
 
-//    @Override
-//    public AuthResponse login(UserLoginRequest request) {
-//        User user = userRepository.findUserByPhoneNumber(request.phoneNumber())
-//                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
-//
-//        if (!encoder.matches(request.password(), user.getPassword())) {
-//            throw new IllegalArgumentException("Неверный пароль");
-//        }
-//
-//        JwtTokenPairDto jwtPair = jwtService.getTokenPair(request.phoneNumber());
-//        return new AuthResponse(jwtPair.accessToken(), jwtPair.refreshToken());
-//    }
+    @Override
+    public UserProfileResponse getUserProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().name())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public UserProfileResponse updateProfile(Long userId, UserUpdateProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+
+        userRepository.save(user);
+
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().name())
+                .build();
+    }
 }

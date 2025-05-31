@@ -9,6 +9,19 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5732:5432"
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: always
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    restart: always
   trip:
     build:
       context: .
@@ -23,3 +36,4 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
+      - redis

@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dto.TripInvitationDto;
-import ru.tbank.itis.tripbackend.dto.common.SimpleResponse;
 import ru.tbank.itis.tripbackend.exception.*;
 import ru.tbank.itis.tripbackend.mapper.TripInvitationMapper;
 import ru.tbank.itis.tripbackend.model.TripInvitation;
