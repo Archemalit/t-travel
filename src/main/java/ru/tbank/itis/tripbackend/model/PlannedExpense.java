@@ -1,0 +1,33 @@
+package ru.tbank.itis.tripbackend.model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import ru.tbank.itis.tripbackend.dictonary.ExpenseCategory;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name = "planned_expenses")
+public class PlannedExpense {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, name = "trip_id")
+    private Long tripId;
+
+    @Column(nullable = false)
+    private String header;
+
+    @Column(nullable = false)
+    private Double amount;
+
+    @Column(nullable = false)
+    private ExpenseCategory category;
+
+}
