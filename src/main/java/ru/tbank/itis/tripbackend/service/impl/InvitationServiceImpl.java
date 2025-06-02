@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
+import ru.tbank.itis.tripbackend.dictionary.NotificationType;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dto.TripInvitationDto;
 import ru.tbank.itis.tripbackend.exception.*;
@@ -13,6 +14,7 @@ import ru.tbank.itis.tripbackend.model.TripParticipant;
 import ru.tbank.itis.tripbackend.repository.TripInvitationRepository;
 import ru.tbank.itis.tripbackend.repository.TripParticipantRepository;
 import ru.tbank.itis.tripbackend.service.InvitationService;
+import ru.tbank.itis.tripbackend.service.NotificationService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +25,7 @@ public class InvitationServiceImpl implements InvitationService {
     private final TripInvitationRepository tripInvitationRepository;
     private final TripParticipantRepository tripParticipantRepository;
     private final TripInvitationMapper tripInvitationMapper;
+    private final NotificationService notificationService;
     @Override
     public List<TripInvitationDto> getUserInvitations(Long userId) {
         return tripInvitationRepository.findAllByInvitedUserIdAndStatus(userId, ForTripAndInvitationStatus.ACTIVE)
@@ -55,6 +58,16 @@ public class InvitationServiceImpl implements InvitationService {
 
         invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
         tripInvitationRepository.save(invitation);
+
+        String message = String.format("%s принял ваше приглашение в поездку '%s'",
+                invitation.getInvitedUser().getFirstName(),
+                invitation.getTrip().getTitle());
+
+        notificationService.createAndSendNotification(
+                invitation.getInviter().getId(),
+                invitation.getTrip().getId(),
+                NotificationType.TRIP_INVITATION_RESPONSE,
+                message);
     }
 
     @Override
@@ -81,5 +94,15 @@ public class InvitationServiceImpl implements InvitationService {
 
         invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
         tripInvitationRepository.save(invitation);
+
+        String message = String.format("%s отклонил ваше приглашение в поездку '%s'",
+                invitation.getInvitedUser().getFirstName(),
+                invitation.getTrip().getTitle());
+
+        notificationService.createAndSendNotification(
+                invitation.getInviter().getId(),
+                invitation.getTrip().getId(),
+                NotificationType.TRIP_INVITATION_RESPONSE,
+                message);
     }
 }

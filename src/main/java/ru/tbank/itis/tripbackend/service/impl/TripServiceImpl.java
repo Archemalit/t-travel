@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
+import ru.tbank.itis.tripbackend.dictionary.NotificationType;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dto.request.TripRequest;
 import ru.tbank.itis.tripbackend.dto.response.TripResponse;
@@ -15,6 +16,7 @@ import ru.tbank.itis.tripbackend.model.Trip;
 import ru.tbank.itis.tripbackend.model.TripParticipant;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.TripRepository;
+import ru.tbank.itis.tripbackend.service.NotificationService;
 import ru.tbank.itis.tripbackend.service.TripService;
 
 import java.util.List;
@@ -27,6 +29,7 @@ public class TripServiceImpl implements TripService {
 
     private final TripRepository tripRepository;
     private final TripMapper tripMapper;
+    private final NotificationService notificationService;
 
     @Override
     public List<TripResponse> getAllTripsByUserId(Long id, boolean onlyCreator) {
@@ -104,7 +107,23 @@ public class TripServiceImpl implements TripService {
         existingTrip.setTotalBudget(tripRequest.getTotalBudget());
 
         Trip updatedTrip = tripRepository.save(existingTrip);
+
+        String message = String.format("Поездка '%s' была изменена", updatedTrip.getTitle());
+        notifyTripParticipants(updatedTrip, userId, message);
+
         return tripMapper.toDto(updatedTrip);
+    }
+
+    private void notifyTripParticipants(Trip trip, Long excludedUserId, String message) {
+        trip.getParticipants().stream()
+                .filter(p -> !p.getUser().getId().equals(excludedUserId))
+                .forEach(participant -> {
+                    notificationService.createAndSendNotification(
+                            participant.getUser().getId(),
+                            trip.getId(),
+                            NotificationType.TRIP_UPDATED,
+                            message);
+                });
     }
 
     @Override
