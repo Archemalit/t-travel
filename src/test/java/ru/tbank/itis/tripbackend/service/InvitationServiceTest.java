@@ -37,6 +37,10 @@ class InvitationServiceTest {
     @Mock
     private TripParticipantRepository tripParticipantRepository;
 
+    @Mock
+    private NotificationService notificationService;
+
+    private User creator;
     private User invitedUser;
     private Trip trip;
     private TripInvitation invitation;
@@ -44,6 +48,14 @@ class InvitationServiceTest {
 
     @BeforeEach
     void setUp() {
+        creator = User.builder()
+                .id(1L)
+                .firstName("Bob")
+                .lastName("Smith")
+                .phoneNumber("79999999998")
+                .role(UserRole.USER)
+                .build();
+
         invitedUser = User.builder()
                 .id(2L)
                 .firstName("Jane")
@@ -54,12 +66,14 @@ class InvitationServiceTest {
 
         trip = Trip.builder()
                 .id(100L)
+                .creator(creator)
                 .title("Test Trip")
                 .build();
 
         invitation = TripInvitation.builder()
                 .id(1L)
                 .trip(trip)
+                .inviter(creator)
                 .invitedUser(invitedUser)
                 .status(ForTripAndInvitationStatus.ACTIVE)
                 .build();
