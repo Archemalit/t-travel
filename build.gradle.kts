@@ -30,7 +30,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("com.auth0:java-jwt:4.5.0")
     implementation("com.nimbusds:nimbus-jose-jwt:9.37.3")
-    implementation("com.google.firebase:firebase-admin:9.5.0")
+    implementation("com.google.firebase:firebase-admin:9.2.0")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.projectlombok:lombok")

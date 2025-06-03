@@ -61,10 +61,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional(readOnly = true)
     public List<NotificationDto> getUserNotifications(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        return notificationRepository.findAllByUserIdOrderByIdDesc(user).stream()
+        // Упрощаем - больше не нужно искать User, передаем сразу userId
+        return notificationRepository.findAllByUserIdOrderByIdDesc(userId).stream()
                 .map(notificationMapper::toDto)
                 .toList();
     }
@@ -72,10 +70,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public NotificationDto markAsRead(Long notificationId, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        Notification notification = notificationRepository.findByIdAndUserId(notificationId, user)
+        // Упрощаем - передаем userId вместо User объекта
+        Notification notification = notificationRepository.findByIdAndUserId(notificationId, userId)
                 .orElseThrow(() -> new NotificationNotFoundException(notificationId));
 
         notification.setRead(true);
@@ -86,10 +82,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional(readOnly = true)
     public long getUnreadCount(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        return notificationRepository.countByUserIdAndIsReadFalse(user);
+        // Упрощаем - передаем userId вместо User объекта
+        return notificationRepository.countByUserIdAndIsReadFalse(userId);
     }
 
     private void sendPushNotification(User user, NotificationType type,

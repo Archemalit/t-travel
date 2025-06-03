@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    List<Notification> findAllByUserIdOrderByIdDesc(User user);
-    long countByUserIdAndIsReadFalse(User user);
-    Optional<Notification> findByIdAndUserId(Long id, User user);
+    List<Notification> findAllByUserIdOrderByIdDesc(Long userId);
+    long countByUserIdAndIsReadFalse(Long userId);
+    Optional<Notification> findByIdAndUserId(Long id, Long userId);
 }
