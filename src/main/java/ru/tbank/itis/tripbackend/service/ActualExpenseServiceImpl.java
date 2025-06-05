@@ -4,15 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.tbank.itis.tripbackend.dto.ActualExpenseDto;
+import ru.tbank.itis.tripbackend.dto.UserDto;
 import ru.tbank.itis.tripbackend.exception.expense.ExpenseNotFoundException;
 import ru.tbank.itis.tripbackend.exception.expense.ExpenseNotFoundForMemberException;
 import ru.tbank.itis.tripbackend.exception.expense.ExpenseNotFoundForTripException;
 import ru.tbank.itis.tripbackend.mapper.ActualExpenseMapper;
+import ru.tbank.itis.tripbackend.mapper.UserMapper;
 import ru.tbank.itis.tripbackend.model.ActualExpense;
+import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.ActualExpenseRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +26,8 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
 
     private final ActualExpenseRepository actualExpenseRepository;
     private final ActualExpenseMapper actualExpenseMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
     @Override
     public List<ActualExpenseDto> getAllExpensesByTrip(Long tripId) {
@@ -47,11 +54,13 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
 
     @Override
     public ActualExpenseDto createExpense(ActualExpenseDto expenseDto) {
-        ActualExpense expense = actualExpenseMapper.mapExpenseDtoToExpense(expenseDto);
+        Set<User> members = userService.getUserSetByUserDtoSet(expenseDto.getMembers());
+        ActualExpense expense = actualExpenseMapper.mapExpenseDtoToExpense(expenseDto, members);
         ActualExpense savedExpense = actualExpenseRepository.save(expense);
-        if(actualExpenseRepository.existsById(savedExpense.getId())) {
+        if (actualExpenseRepository.existsById(savedExpense.getId())) {
             log.info("{} Расход успешно сохранен", LocalDateTime.now());
-            return actualExpenseMapper.mapExpenseToExpenseDto(savedExpense);
+
+            return actualExpenseMapper.mapExpenseToExpenseDto(savedExpense) ;
         } else {
             throw new RuntimeException("Ошибка при сохранении расхода");
         }
@@ -59,21 +68,23 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
 
     @Override
     public ActualExpenseDto updateExpense(Long userId, Long tripId, Long expenseId, ActualExpenseDto expenseDto) {
-        if(!actualExpenseRepository.existsById(expenseId)) {
+        Optional<ActualExpense> expense = actualExpenseRepository.findById(expenseId);
+        if (expense.isEmpty()) {
             throw new ExpenseNotFoundException(expenseId);
         } else if (!actualExpenseRepository.existsByTripId(tripId)) {
             throw new ExpenseNotFoundForTripException(tripId);
-        } else if (!actualExpenseRepository.findById(expenseId).get().getPaidByUserId().equals(userId)) {
+        } else if (!expense.get().getPaidByUserId().equals(userId)) {
             throw new RuntimeException("Не достаточно прав для редактирования расхода");
         }
 
         ActualExpense oldExpense = actualExpenseRepository.findById(expenseId).get();
         actualExpenseRepository.delete(oldExpense);
         expenseDto.setId(expenseId);
-        ActualExpense newExpense = actualExpenseMapper.mapExpenseDtoToExpense(expenseDto);
+        Set<User> members = userService.getUserSetByUserDtoSet(expenseDto.getMembers());
+        ActualExpense newExpense = actualExpenseMapper.mapExpenseDtoToExpense(expenseDto, members);
         ActualExpense updatedExpense = actualExpenseRepository.save(newExpense);
 
-        if(actualExpenseRepository.existsById(updatedExpense.getId())) {
+        if (actualExpenseRepository.existsById(updatedExpense.getId())) {
             log.info("{} Расход успешно отредактирован", LocalDateTime.now());
             return actualExpenseMapper.mapExpenseToExpenseDto(updatedExpense);
         } else {
@@ -83,11 +94,12 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
 
     @Override
     public void deleteExpense(Long userId, Long tripId, Long expenseId) {
-        if (actualExpenseRepository.existsByTripId(expenseId)) {
+        Optional<ActualExpense> expense = actualExpenseRepository.findById(expenseId);
+        if (expense.isEmpty()) {
             throw new ExpenseNotFoundException(expenseId);
         } else if (!actualExpenseRepository.existsByTripId(tripId)) {
             throw new ExpenseNotFoundForTripException(tripId);
-        } else if (!actualExpenseRepository.findById(expenseId).get().getPaidByUserId().equals(userId)) {
+        } else if (!expense.get().getPaidByUserId().equals(userId)) {
             throw new RuntimeException("Не достаточно прав для удаления расхода");
         }
 

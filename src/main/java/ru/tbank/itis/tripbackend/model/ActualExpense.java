@@ -9,6 +9,7 @@ import ru.tbank.itis.tripbackend.dictonary.ExpenseCategory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -38,4 +39,8 @@ public class ActualExpense {
 
     @Column(nullable = false, name = "paid_by_user_id")
     private Long paidByUserId;
+
+    @OneToMany
+    @JoinColumn(name = "expense_id")
+    private Set<User> members;
 }

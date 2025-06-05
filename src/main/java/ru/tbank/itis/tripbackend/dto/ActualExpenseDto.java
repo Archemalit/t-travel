@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.tbank.itis.tripbackend.dictonary.ExpenseCategory;
+import ru.tbank.itis.tripbackend.model.User;
+
+import java.util.Set;
 
 @Data
 @Builder
@@ -33,5 +36,5 @@ public class ActualExpenseDto {
     private String chequeImage;
 
     private Long paidByUserId;
-    private Long[] membersIds;
+    private Set<UserDto> members;
 }
