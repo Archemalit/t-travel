@@ -28,18 +28,22 @@ public class TokenAuthenticationFailureHandler implements AuthenticationFailureH
         response.setCharacterEncoding("UTF-8");
 
         String message = "Неверные учетные данные";
+        int status = HttpServletResponse.SC_BAD_REQUEST;
+        String error = "Bad Request";
 
         if (exception instanceof BadCredentialsException
                 || exception instanceof AuthMethodNotSupportedException) {
             message = exception.getMessage();
         } else if (exception.getCause() instanceof TokenExpiredException) {
             message = exception.getMessage();
+            status = HttpServletResponse.SC_UNAUTHORIZED;
+            error = "Unauthorized";
         }
 
         SimpleErrorResponse errorResponse = new SimpleErrorResponse(
                 LocalDateTime.now(),
-                HttpServletResponse.SC_UNAUTHORIZED,
-                "Unauthorized",
+                status,
+                error,
                 message
         );
 

@@ -18,7 +18,7 @@ import ru.tbank.itis.tripbackend.security.details.UserDetailsImpl;
 import ru.tbank.itis.tripbackend.service.UserService;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @Tag(name = "User Profile", description = "API для просмотра и обновления профиля пользователя")
 public class UserProfileController {
@@ -60,6 +60,43 @@ public class UserProfileController {
     )
     public UserProfileResponse getUserProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.getUserProfile(userDetails.getId());
+    }
+
+    @GetMapping("/{id}")
+    @Operation(
+            summary = "Получение данных профиля пользователя ",
+            description = "Возвращает информацию о профиле пользователя по ID",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Профиль успешно загружен",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserProfileResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401", description = "Пользователь не авторизован",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
+                                    @ExampleObject(
+                                            name = "Example",
+                                            value = """
+                                                    {
+                                                      "timestamp": "2025-06-08T12:00:00Z",
+                                                      "status": 401,
+                                                      "error": "Unauthorized",
+                                                      "message": "Вы не передали access-токен!"
+                                                    }
+                                                    """,
+                                            description = "Не был передан access-токен в заголовок"
+                                    )
+                            })),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Пользователь не найден",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class))
+                    )
+            }
+    )
+    public UserProfileResponse getUserProfileById(@PathVariable Long id) {
+        return userService.getUserProfile(id);
     }
 
     @PatchMapping("/edit")
