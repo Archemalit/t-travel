@@ -15,7 +15,7 @@ import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/{tripId}/expenses")
+@RequestMapping("api/v1/{tripId}/expenses")
 @RequiredArgsConstructor
 @Log4j2
 public class ActualExpenseController {

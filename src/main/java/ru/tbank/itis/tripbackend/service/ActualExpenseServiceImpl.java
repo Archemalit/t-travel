@@ -27,7 +27,6 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
     private final ActualExpenseRepository actualExpenseRepository;
     private final ActualExpenseMapper actualExpenseMapper;
     private final UserService userService;
-    private final UserMapper userMapper;
 
     @Override
     public List<ActualExpenseDto> getAllExpensesByTrip(Long tripId) {
