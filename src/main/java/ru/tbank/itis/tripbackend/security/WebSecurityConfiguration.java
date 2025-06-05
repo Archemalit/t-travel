@@ -36,7 +36,7 @@ import java.util.List;
 public class WebSecurityConfiguration {
 
     private final List<String> ANONYMOUS_PATHS = List.of(
-            "/api/v1/login", "/api/v1/register", "/api/v1/check", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/refresh");
+            "/api/v1/login", "/api/v1/register", "/api/v1/check", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/refresh", "/actuator/**");
 
     @Bean
     public SecurityFilterChain apiSecurityFilterChain(
@@ -52,7 +52,7 @@ public class WebSecurityConfiguration {
                 .addFilterAt(loginAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(refreshTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/login", "/api/v1/register", "/api/v1/check").permitAll()
+                        .requestMatchers("/api/v1/login", "/api/v1/register", "/api/v1/check", "/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(AbstractHttpConfigurer::disable);

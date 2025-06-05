@@ -18,6 +18,13 @@ spring:
       host: redis
       port: 6379
 
+logging:
+  structured:
+    format:
+      file: ecs
+  file:
+    name: logs/app.json
+
 server:
   port: 8080
 
@@ -26,3 +33,24 @@ springdoc:
     enabled: true
     path: /swagger-ui
 
+jwt:
+  secret: ${JWT_SECRET:secret}
+  access-token:
+    ttl: 1000000
+
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include[0]: health
+        include[1]: info
+        include[2]: metrics
+        include[3]: prometheus
+  appoptics:
+    metrics:
+      export:
+        enabled: true

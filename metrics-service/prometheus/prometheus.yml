@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+scrape_configs:
+  - job_name: 'trip'
+    scheme: http
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['trip:8080']
+#      - targets: ['host.docker.internal:8080']
+    bearer_token:
+    basic_auth:
+      username: 'trip-service'
+      password: '120873'
+rule_files:
+  - 'alert-rules.yml'
+alerting:
+  alertmanagers:
+    - scheme: http
+    - static_configs:
+        - targets: ['alertmanager:9093']
+#        - targets: ['host.docker.internal:9093']

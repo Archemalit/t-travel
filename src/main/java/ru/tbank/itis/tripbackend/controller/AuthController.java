@@ -62,7 +62,7 @@ public class AuthController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtTokenPairDto.class))
                     ),
                     @ApiResponse(
-                            responseCode = "401",
+                            responseCode = "400",
                             description = "Неверные данные для аутентификации",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
                                     @ExampleObject(
@@ -70,8 +70,8 @@ public class AuthController {
                                             value = """
                                                     {
                                                       "timestamp": "2025-05-24T14:24:27.890825",
-                                                      "status": 401,
-                                                      "error": "Unauthorized",
+                                                      "status": 400,
+                                                      "error": "Bad Request",
                                                       "message": "Неверные учетные данные"
                                                     }
                                                     """,
