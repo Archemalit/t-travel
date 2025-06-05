@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.tbank.itis.tripbackend.dto.PlannedExpenseDto;
-import ru.tbank.itis.tripbackend.exception.expense.ExpenseNotFoundException;
-import ru.tbank.itis.tripbackend.exception.expense.ExpenseNotFoundForTripException;
 import ru.tbank.itis.tripbackend.mapper.PlannedExpenseMapper;
 import ru.tbank.itis.tripbackend.model.PlannedExpense;
 import ru.tbank.itis.tripbackend.repository.PlannedExpenseRepository;
@@ -27,7 +25,7 @@ public class PlannedExpanseServiceImpl implements PlannedExpenseService {
     @Override
     public PlannedExpenseDto getExpenseById(Long id) {
         PlannedExpense expense = plannedExpenseRepository.findById(id)
-                .orElseThrow(() -> new ExpenseNotFoundException(id));
+                .orElseThrow(() -> new RuntimeException("Не найдено расходов с id: " + id));
 
         return plannedExpenseMapper.mapExpenseToExpenseDto(expense);
     }
@@ -61,9 +59,9 @@ public class PlannedExpanseServiceImpl implements PlannedExpenseService {
     @Override
     public PlannedExpenseDto updateExpense(Long tripId, Long expenseId, PlannedExpenseDto expenseDto) {
         if(!plannedExpenseRepository.existsById(expenseId)) {
-            throw new ExpenseNotFoundException(expenseId);
+            throw new RuntimeException("Не найдено расходов с id: " + expenseId);
         } else if (plannedExpenseRepository.existsByTripId(tripId)) {
-            throw new ExpenseNotFoundForTripException(tripId);
+            throw new RuntimeException("Не найдено расходов для поездки с id: " + tripId);
         }
 
         PlannedExpense oldExpense = plannedExpenseRepository.findById(expenseId).get();
@@ -83,9 +81,9 @@ public class PlannedExpanseServiceImpl implements PlannedExpenseService {
     @Override
     public void deleteExpense(Long tripId, Long expenseId) {
         if(!plannedExpenseRepository.existsById(expenseId)) {
-            throw new ExpenseNotFoundException(expenseId);
+            throw new RuntimeException("Не найдено расходов с id: " + expenseId);
         } else if (plannedExpenseRepository.existsByTripId(tripId)) {
-            throw new ExpenseNotFoundForTripException(tripId);
+            throw new RuntimeException("Не найдено расходов для поездки с id: " + tripId);
         }
 
         plannedExpenseRepository.deleteById(expenseId);
