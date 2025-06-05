@@ -1,0 +1,10 @@
+route:
+  receiver: telegram
+  repeat_interval: 5m
+receivers:
+  - name: 'telegram'
+    telegram_configs:
+      - bot_token: 7837423027:AAEzdeYJ5knUfLCJd6m_ukJJvonYUqmmdog
+        api_url: https://api.telegram.org
+        chat_id: -4942068835
+        parse_mode: ''
