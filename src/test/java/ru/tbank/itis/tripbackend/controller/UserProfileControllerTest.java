@@ -73,7 +73,7 @@ class UserProfileControllerTest {
 
         when(userService.getUserProfile(1L)).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/api/users/me")
+        mockMvc.perform(get("/api/v1/users/me")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
@@ -89,6 +89,38 @@ class UserProfileControllerTest {
                 .thenThrow(new UserNotFoundException(1L));
 
         mockMvc.perform(get("/api/users/me")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getUserProfileById_shouldReturnUserProfile() throws Exception {
+        UserProfileResponse mockResponse = UserProfileResponse.builder()
+                .id(2L)
+                .firstName("Alice")
+                .lastName("Smith")
+                .phoneNumber("79876543210")
+                .role("USER")
+                .build();
+
+        when(userService.getUserProfile(2L)).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/api/v1/users/2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(2L))
+                .andExpect(jsonPath("$.firstName").value("Alice"))
+                .andExpect(jsonPath("$.lastName").value("Smith"))
+                .andExpect(jsonPath("$.phoneNumber").value("79876543210"))
+                .andExpect(jsonPath("$.role").value("USER"));
+    }
+
+    @Test
+    void getUserProfileById_whenUserNotFound_shouldReturnNotFound() throws Exception {
+        when(userService.getUserProfile(2L))
+                .thenThrow(new UserNotFoundException(2L));
+
+        mockMvc.perform(get("/api/v1/users/2")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -110,7 +142,7 @@ class UserProfileControllerTest {
         when(userService.updateProfile(eq(1L), any(UserUpdateProfileRequest.class)))
                 .thenReturn(mockResponse);
 
-        mockMvc.perform(patch("/api/users/edit")
+        mockMvc.perform(patch("/api/v1/users/edit")
                         .with(csrf().asHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -125,7 +157,7 @@ class UserProfileControllerTest {
         invalidRequest.setFirstName("");
         invalidRequest.setLastName("");
 
-        mockMvc.perform(patch("/api/users/edit")
+        mockMvc.perform(patch("/api/v1/users/edit")
                         .with(csrf().asHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))
