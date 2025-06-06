@@ -29,10 +29,10 @@ public class TripParticipant {
     @JoinColumn(name = "trip_id", nullable = false)
     private Trip trip;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_Id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "participant")
+    @OneToMany(mappedBy = "participant", fetch = FetchType.EAGER)
     private Set<ExpenseParticipant> expenseParticipations = new HashSet<>();
 }

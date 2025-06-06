@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
 import ru.tbank.itis.tripbackend.dto.JwtTokenPairDto;
+import ru.tbank.itis.tripbackend.dto.UserDto;
 import ru.tbank.itis.tripbackend.dto.request.UserRegistrationRequest;
 import ru.tbank.itis.tripbackend.dto.request.UserUpdateProfileRequest;
 import ru.tbank.itis.tripbackend.dto.response.UserExistsResponse;
@@ -16,6 +17,9 @@ import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
 import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
 import ru.tbank.itis.tripbackend.service.UserService;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,5 +85,13 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .role(user.getRole().name())
                 .build();
+    }
+
+    @Override
+    public Set<User> getUserSetByUserDtoSet(Set<UserDto> members) {
+        return members.stream()
+                .map(member -> userRepository.findById(member.getId())
+                        .orElseThrow(() -> new RuntimeException("Пользователь с id: " + member.getId() + " не найден")))
+                .collect(Collectors.toSet());
     }
 }
