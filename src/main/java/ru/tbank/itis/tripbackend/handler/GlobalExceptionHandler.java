@@ -178,6 +178,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ExpenseNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public SimpleErrorResponse handleExpenseNotFound(ExpenseNotFoundException ex) {
+        return new SimpleErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Расход не найден",
+                ex.getMessage()
+        );
+    }
+
 
 //    @ExceptionHandler(InvalidRefreshTokenException.class)
 //    @ResponseStatus(HttpStatus.UNAUTHORIZED)

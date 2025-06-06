@@ -47,7 +47,7 @@ public class Trip {
     @Column(nullable = false)
     private ForTripAndInvitationStatus status;
 
-    @OneToMany(mappedBy = "trip", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "trip")
     private List<Expense> expenses;
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
