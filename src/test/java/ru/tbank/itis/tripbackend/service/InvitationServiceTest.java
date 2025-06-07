@@ -75,7 +75,7 @@ class InvitationServiceTest {
     @DisplayName("acceptInvitation — успешно принято приглашение — обновляет статус участника и архивирует приглашение")
     void acceptInvitation_successfullyAccepted_returnsSimpleResponse() {
         when(tripInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
-        when(tripParticipantRepository.findByTripIdAndUserId(100L, 2L)).thenReturn(Optional.of(participant));
+        when(tripParticipantRepository.findByTripIdAndUserIdAndStatus(100L, 2L, TripParticipantStatus.PENDING)).thenReturn(Optional.of(participant));
 
         invitationService.acceptInvitation(1L, 2L);
 
@@ -130,7 +130,8 @@ class InvitationServiceTest {
     @DisplayName("acceptInvitation — участник не найден — выбрасывает ParticipantNotFoundException")
     void acceptInvitation_participantNotFound_throwsParticipantNotFoundException() {
         when(tripInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
-        when(tripParticipantRepository.findByTripIdAndUserId(100L, 2L)).thenReturn(Optional.empty());
+        when(tripParticipantRepository.findByTripIdAndUserIdAndStatus(100L, 2L, TripParticipantStatus.PENDING))
+                .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> invitationService.acceptInvitation(1L, 2L))
                 .isInstanceOf(ParticipantNotFoundException.class)
@@ -144,7 +145,7 @@ class InvitationServiceTest {
     @DisplayName("rejectInvitation — успешно отклонено приглашение — обновляет статус участника и архивирует приглашение")
     void rejectInvitation_successfullyRejected_returnsSimpleResponse() {
         when(tripInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
-        when(tripParticipantRepository.findByTripIdAndUserId(100L, 2L)).thenReturn(Optional.of(participant));
+        when(tripParticipantRepository.findByTripIdAndUserIdAndStatus(100L, 2L, TripParticipantStatus.PENDING)).thenReturn(Optional.of(participant));
 
         invitationService.rejectInvitation(1L, 2L);
 
@@ -199,7 +200,7 @@ class InvitationServiceTest {
     @DisplayName("rejectInvitation — участник не найден — выбрасывает ParticipantNotFoundException")
     void rejectInvitation_participantNotFound_throwsParticipantNotFoundException() {
         when(tripInvitationRepository.findById(1L)).thenReturn(Optional.of(invitation));
-        when(tripParticipantRepository.findByTripIdAndUserId(100L, 2L)).thenReturn(Optional.empty());
+        when(tripParticipantRepository.findByTripIdAndUserIdAndStatus(100L, 2L, TripParticipantStatus.PENDING)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> invitationService.rejectInvitation(1L, 2L))
                 .isInstanceOf(ParticipantNotFoundException.class)
