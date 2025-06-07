@@ -67,7 +67,6 @@ class TripServiceTest {
         mockTrip = Trip.builder()
                 .id(1L)
                 .title("Test Trip")
-                .description("A test description")
                 .startDate(startDate)
                 .endDate(endDate)
                 .totalBudget(budget)
@@ -106,7 +105,7 @@ class TripServiceTest {
     void getAllTripsByUserId_withoutOnlyCreator_shouldReturnParticipantTrips() {
         when(tripRepository.findByParticipantsUserId(1L)).thenReturn(List.of(mockTrip));
 
-        List<TripResponse> result = tripService.getAllTripsByUserId(1L, false);
+        List<TripResponse> result = tripService.getAllTripsByUserId(1L, false, false);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getTitle()).isEqualTo("Test Trip");

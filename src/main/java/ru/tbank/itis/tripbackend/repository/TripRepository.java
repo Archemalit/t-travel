@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
     List<Trip> findByCreatorId(Long creatorId);
-    @Query("SELECT t FROM Trip t JOIN t.participants p WHERE p.user.id = :id AND p.status = 'ACCEPTED'")
+    @Query("SELECT t FROM Trip t JOIN t.participants p WHERE p.user.id = :id AND (p.status = 'ACCEPTED' OR p.status = 'PENDING')")
     List<Trip> findByParticipantsUserId(@Param("id") Long id);
 }

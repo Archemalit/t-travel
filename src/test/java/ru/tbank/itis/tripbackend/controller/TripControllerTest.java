@@ -82,7 +82,7 @@ class TripControllerTest {
     @Test
     @DisplayName("GET /trips — получение всех поездок пользователя — возвращает список")
     void getAllTrips_shouldReturnListOfTrips() throws Exception {
-        when(tripService.getAllTripsByUserId(1L, false)).thenReturn(List.of(tripResponse));
+        when(tripService.getAllTripsByUserId(1L, false,false)).thenReturn(List.of(tripResponse));
 
         mockMvc.perform(get("/api/v1/trips")
                         .param("onlyCreator", "false")
@@ -91,7 +91,7 @@ class TripControllerTest {
                 .andExpect(jsonPath("$.size()").value(1))
                 .andExpect(jsonPath("$[0].title").value("Test Trip"));
 
-        verify(tripService).getAllTripsByUserId(1L, false);
+        verify(tripService).getAllTripsByUserId(1L, false, false);
     }
 
 
