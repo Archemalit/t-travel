@@ -3,6 +3,7 @@ package ru.tbank.itis.tripbackend.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dto.request.ExpenseParticipantRequest;
 import ru.tbank.itis.tripbackend.dto.request.ExpenseRequest;
 import ru.tbank.itis.tripbackend.dto.response.ExpenseParticipantResponse;
@@ -31,20 +32,30 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
     private final ExpenseRepository expenseRepository;
     private final TripParticipantRepository tripParticipantRepository;
     private final TripRepository tripRepository;
-    private final UserRepository userRepository;
 
     private final ExpenseMapper expenseMapper;
-    private final ExpenseParticipantMapper expenseParticipantMapper;
 
     @Override
-    public ExpenseResponse getExpenseById(Long expenseId) {
+    public ExpenseResponse getExpenseById(Long userId, Long expenseId) {
         Expense expense = expenseRepository.findById(expenseId)
                 .orElseThrow(() -> new ExpenseNotFoundException(expenseId));
+        boolean participant = tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
+                (expense.getTrip().getId(), userId, List.of(TripParticipantStatus.ACCEPTED));
+        if (!participant) {
+            throw new ForbiddenAccessException("Вы не можете посмотреть этот расход, так как не являетесь участником этой поездки!");
+        }
+
         return expenseMapper.toDto(expense);
     }
 
     @Override
-    public List<ExpenseResponse> getAllExpensesByTrip(Long tripId) {
+    public List<ExpenseResponse> getAllExpensesByTrip(Long userId, Long tripId) {
+        boolean participant = tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
+                (tripId, userId, List.of(TripParticipantStatus.ACCEPTED));
+        if (!participant) {
+            throw new ForbiddenAccessException("Вы не можете посмотреть этот расход, так как не являетесь участником этой поездки!");
+        }
+
         return expenseRepository
                 .findAllByTripId(tripId).stream()
                 .map(expenseMapper::toDto).toList();
@@ -62,7 +73,8 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
     public ExpenseResponse createExpense(User paidBy, Long tripId, ExpenseRequest expenseDto) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(tripId));
-        boolean isMember = tripParticipantRepository.existsByTripIdAndUserId(trip.getId(), paidBy.getId());
+
+        boolean isMember = tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn(trip.getId(), paidBy.getId(), List.of(TripParticipantStatus.ACCEPTED));
         if (!isMember) {
             throw new ForbiddenAccessException("Вы не являетесь участником поездки, поэтому не можете создать расход!");
         }
@@ -71,7 +83,8 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
         Set<ExpenseParticipant> participants = new HashSet<>();
         Set<Long> paidForIds = new HashSet<>();
         for (ExpenseParticipantRequest expenseParticipant : expenseDto.getParticipants()) {
-            TripParticipant participant = tripParticipantRepository.findByTripIdAndUserId(tripId, expenseParticipant.getParticipantId())
+            TripParticipant participant = tripParticipantRepository.findByTripIdAndUserIdAndStatus
+                            (tripId, expenseParticipant.getParticipantId(), TripParticipantStatus.ACCEPTED)
                             .orElseThrow(() -> new ParticipantNotFoundException(tripId, expenseParticipant.getParticipantId()));
             if (Objects.equals(participant.getUser().getId(), paidBy.getId())) {
 //                так как расход на самого себя записал, его нигде отображать не нужно

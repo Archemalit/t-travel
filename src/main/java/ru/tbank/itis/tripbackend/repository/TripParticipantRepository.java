@@ -6,13 +6,13 @@ import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.model.TripParticipant;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface TripParticipantRepository extends JpaRepository<TripParticipant, Long> {
-    Optional<TripParticipant> findByTripIdAndUserId(Long tripId, Long userId);
-    boolean existsByTripIdAndUserId(Long tripId, Long userId);
-    boolean existsByTripIdAndUserIdAndStatus(Long tripId, Long userId, TripParticipantStatus status);
+    Optional<TripParticipant> findByTripIdAndUserIdAndStatus(Long tripId, Long userId, TripParticipantStatus status);
+    boolean existsByTripIdAndUserIdAndStatusIn(Long tripId, Long userId, List<TripParticipantStatus> status);
     List<TripParticipant> findAllByTripIdAndStatus(Long tripId, TripParticipantStatus status);
 }

@@ -15,6 +15,7 @@ import ru.tbank.itis.tripbackend.mapper.TripMapper;
 import ru.tbank.itis.tripbackend.model.Trip;
 import ru.tbank.itis.tripbackend.model.TripParticipant;
 import ru.tbank.itis.tripbackend.model.User;
+import ru.tbank.itis.tripbackend.repository.TripParticipantRepository;
 import ru.tbank.itis.tripbackend.repository.TripRepository;
 import ru.tbank.itis.tripbackend.service.TripService;
 
@@ -28,16 +29,17 @@ import java.util.stream.Collectors;
 public class TripServiceImpl implements TripService {
 
     private final TripRepository tripRepository;
+    private final TripParticipantRepository tripParticipantRepository;
     private final TripMapper tripMapper;
 
     @Override
-    public List<TripResponse> getAllTripsByUserId(Long id, boolean onlyCreator, boolean onlyArchive) {
-        log.debug("Получение поездок для пользователя с ID: {}", id);
+    public List<TripResponse> getAllTripsByUserId(Long userId, boolean onlyCreator, boolean onlyArchive) {
+        log.debug("Получение поездок для пользователя с ID: {}", userId);
 
         List<TripResponse> trips;
         if (onlyCreator) {
             log.info("Получаем только поездки, где пользователь создатель");
-            trips = tripRepository.findByCreatorId(id).stream()
+            trips = tripRepository.findByCreatorId(userId).stream()
                     .filter(trip -> {
                         if (onlyArchive) {
                             return trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED;
@@ -48,7 +50,7 @@ public class TripServiceImpl implements TripService {
                     .collect(Collectors.toList());
         } else {
             log.info("Получаем все поездки, где пользователь участник");
-            trips = tripRepository.findByParticipantsUserId(id).stream()
+            trips = tripRepository.findByParticipantsUserId(userId).stream()
                     .filter(trip -> {
                         if (onlyArchive) {
                             return trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED;
@@ -59,30 +61,30 @@ public class TripServiceImpl implements TripService {
                     .collect(Collectors.toList());
         }
 
-        log.info("Найдено {} поездок для пользователя с ID: {}", trips.size(), id);
+        log.info("Найдено {} поездок для пользователя с ID: {}", trips.size(), userId);
         return trips;
     }
 
     @Override
     @Transactional
-    public TripResponse getTripById(Long id, Long userId) {
-        log.debug("Получение поездки с ID: {} для пользователя с ID: {}", id, userId);
+    public TripResponse getTripById(Long tripId, Long userId) {
+        log.debug("Получение поездки с ID: {} для пользователя с ID: {}", tripId, userId);
 
-        Trip trip = tripRepository.findById(id)
+        Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> {
-                    log.warn("Поездка с ID: {} не найдена", id);
-                    return new TripNotFoundException(id);
+                    log.warn("Поездка с ID: {} не найдена", tripId);
+                    return new TripNotFoundException(tripId);
                 });
 
-        boolean isParticipant = trip.getParticipants().stream()
-                .anyMatch(participant -> participant.getUser().getId().equals(userId));
+        boolean isParticipant = tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
+                (tripId, userId, List.of(TripParticipantStatus.ACCEPTED, TripParticipantStatus.PENDING));
 
         if (!isParticipant) {
-            log.warn("Пользователь с ID: {} не является участником поездки с ID: {}", userId, id);
+            log.warn("Пользователь с ID: {} не является участником поездки с ID: {}", userId, tripId);
             throw new ForbiddenAccessException("Доступа нет!");
         }
 
-        log.info("Поездка с ID: {} успешно найдена для пользователя с ID: {}", id, userId);
+        log.info("Поездка с ID: {} успешно найдена для пользователя с ID: {}", tripId, userId);
         return tripMapper.toDto(trip);
     }
 
@@ -112,22 +114,22 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public TripResponse updateTrip(Long id, TripRequest tripRequest, Long userId) {
-        log.info("Обновление поездки с ID: {}", id);
+    public TripResponse updateTrip(Long tripId, TripRequest tripRequest, Long userId) {
+        log.info("Обновление поездки с ID: {}", tripId);
 
-        Trip existingTrip = tripRepository.findById(id)
+        Trip existingTrip = tripRepository.findById(tripId)
                 .orElseThrow(() -> {
-                    log.warn("Поездка с ID: {} не найдена", id);
-                    return new TripNotFoundException(id);
+                    log.warn("Поездка с ID: {} не найдена", tripId);
+                    return new TripNotFoundException(tripId);
                 });
 
         if (!existingTrip.getCreator().getId().equals(userId)) {
-            log.warn("Пользователь с ID: {} не является владельцем поездки с ID: {}", userId, id);
+            log.warn("Пользователь с ID: {} не является владельцем поездки с ID: {}", userId, tripId);
             throw new ForbiddenAccessException("Доступа нет!");
         }
 
         if (tripRequest.getTotalBudget() < 0) {
-            log.warn("Попытка установить отрицательный бюджет для поездки с ID: {}", id);
+            log.warn("Попытка установить отрицательный бюджет для поездки с ID: {}", tripId);
             throw new ValidationException("Бюджет не может быть отрицательным");
         }
 
@@ -141,23 +143,23 @@ public class TripServiceImpl implements TripService {
         existingTrip.setTotalBudget(tripRequest.getTotalBudget());
 
         Trip updatedTrip = tripRepository.save(existingTrip);
-        log.info("Поездка с ID: {} успешно обновлена", id);
+        log.info("Поездка с ID: {} успешно обновлена", tripId);
 
         return tripMapper.toDto(updatedTrip);
     }
 
     @Override
-    public void deleteTrip(Long id, Long userId) {
-        log.info("Удаление поездки с ID: {}", id);
+    public void deleteTrip(Long tripId, Long userId) {
+        log.info("Удаление поездки с ID: {}", tripId);
 
-        Trip trip = tripRepository.findById(id)
+        Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> {
-                    log.warn("Поездка с ID: {} не найдена", id);
-                    return new TripNotFoundException(id);
+                    log.warn("Поездка с ID: {} не найдена", tripId);
+                    return new TripNotFoundException(tripId);
                 });
 
         if (!trip.getCreator().getId().equals(userId)) {
-            log.warn("Пользователь с ID: {} не является владельцем поездки с ID: {}", userId, id);
+            log.warn("Пользователь с ID: {} не является владельцем поездки с ID: {}", userId, tripId);
             throw new ForbiddenAccessException("Доступа нет!");
         }
 
@@ -165,8 +167,8 @@ public class TripServiceImpl implements TripService {
 //            throw new ForbiddenAccessException("Нельзя удалить поездку в архиве");
 //        }
 
-        tripRepository.deleteById(id);
-        log.info("Поездка с ID: {} успешно удалена", id);
+        tripRepository.deleteById(tripId);
+        log.info("Поездка с ID: {} успешно удалена", tripId);
     }
 
     @Override
