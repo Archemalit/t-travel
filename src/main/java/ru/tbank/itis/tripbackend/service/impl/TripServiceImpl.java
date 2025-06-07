@@ -31,20 +31,30 @@ public class TripServiceImpl implements TripService {
     private final TripMapper tripMapper;
 
     @Override
-    public List<TripResponse> getAllTripsByUserId(Long id, boolean onlyCreator) {
+    public List<TripResponse> getAllTripsByUserId(Long id, boolean onlyCreator, boolean onlyArchive) {
         log.debug("Получение поездок для пользователя с ID: {}", id);
 
         List<TripResponse> trips;
         if (onlyCreator) {
             log.info("Получаем только поездки, где пользователь создатель");
             trips = tripRepository.findByCreatorId(id).stream()
-                    .filter(trip -> trip.getStatus() == ForTripAndInvitationStatus.ACTIVE)
+                    .filter(trip -> {
+                        if (onlyArchive) {
+                            return trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED;
+                        }
+                        return trip.getStatus() == ForTripAndInvitationStatus.ACTIVE;
+                    })
                     .map(tripMapper::toDto)
                     .collect(Collectors.toList());
         } else {
             log.info("Получаем все поездки, где пользователь участник");
             trips = tripRepository.findByParticipantsUserId(id).stream()
-                    .filter(trip -> trip.getStatus() == ForTripAndInvitationStatus.ACTIVE)
+                    .filter(trip -> {
+                        if (onlyArchive) {
+                            return trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED;
+                        }
+                        return trip.getStatus() == ForTripAndInvitationStatus.ACTIVE;
+                    })
                     .map(tripMapper::toDto)
                     .collect(Collectors.toList());
         }
@@ -79,6 +89,10 @@ public class TripServiceImpl implements TripService {
     @Override
     public TripResponse createTrip(TripRequest tripRequest, User user) {
         log.info("Создание новой поездки пользователем с ID: {}", user.getId());
+
+        if (!tripRequest.getEndDate().isAfter(tripRequest.getStartDate())) {
+            throw new ValidationException("Дата конца поездки должна быть позже начала!");
+        }
 
         Trip trip = tripMapper.toEntity(tripRequest);
         trip.setCreator(user);
