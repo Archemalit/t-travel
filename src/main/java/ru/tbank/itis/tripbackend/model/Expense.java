@@ -3,6 +3,8 @@ package ru.tbank.itis.tripbackend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
+import ru.tbank.itis.tripbackend.dictionary.ExpenseCategory;
+import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,15 +26,19 @@ public class Expense {
     @Column(length = 500)
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ExpenseCategory category;
+
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "trip_id", nullable = false)
     private Trip trip;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "paid_by_user_id", nullable = false)
     private User paidBy;
 
-    @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<ExpenseParticipant> participants = new HashSet<>();
 
 }
