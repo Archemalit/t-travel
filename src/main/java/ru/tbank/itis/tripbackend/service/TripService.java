@@ -8,7 +8,7 @@ import ru.tbank.itis.tripbackend.model.User;
 import java.util.List;
 
 public interface TripService {
-    List<TripResponse> getAllTripsByUserId(Long id, boolean onlyCreator);
+    List<TripResponse> getAllTripsByUserId(Long id, boolean onlyCreator, boolean onlyArchive);
     TripResponse getTripById(Long id, Long userId);
     TripResponse createTrip(TripRequest tripRequest, User user);
     TripResponse updateTrip(Long id, TripRequest tripRequest, Long userId);
