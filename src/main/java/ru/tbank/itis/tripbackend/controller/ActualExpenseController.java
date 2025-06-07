@@ -34,7 +34,7 @@ public class ActualExpenseController {
 
     @GetMapping("/{expenseId}")
     @Operation(
-            summary = "Получение расхода по ID",
+            summary = "Получение информации о расходе",
             description = "Возвращает расход по ID",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Расход успешно загружен",
@@ -130,56 +130,56 @@ public class ActualExpenseController {
         return actualExpenseService.getAllExpensesByTrip(tripId);
     }
 
-    @GetMapping("/{tripId}/member/{memberId}")
-    @Operation(
-            summary = "Получение всех расходов участника поездки",
-            description = "Возвращает список всех расходов, за которые платил участник поездки",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Список расходов успешно загружен",
-                            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ExpenseParticipantResponse.class)))),
-                    @ApiResponse(responseCode = "401", description = "Пользователь не авторизован",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
-                                    @ExampleObject(
-                                            name = "Example",
-                                            value = """
-                                                    {
-                                                      "timestamp": "2025-06-08T12:00:00Z",
-                                                      "status": 401,
-                                                      "error": "Unauthorized",
-                                                      "message": "Вы не передали access-токен!"
-                                                    }
-                                                    """,
-                                            description = "Не был передан access-токен в заголовок"
-                                    )
-                            })
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "Пользователь не имеет доступа к этой поездке",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
-                                    @ExampleObject(
-                                            name = "Example",
-                                            value = """
-                                                    {
-                                                      "timestamp": "2025-05-24T14:34:43.268036",
-                                                      "status": 403,
-                                                      "error": "Доступ запрещен",
-                                                      "message": "Доступа нет!"
-                                                    }
-                                                    """,
-                                            description = "Недостаточно прав для получения информации о расходах участника"
-                                    )
-                            })
-                    ),
-                    @ApiResponse(responseCode = "404", description = "Поездка или участник не найдены",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class)))
-            }
-    )
-    public List<ExpenseParticipantResponse> getAllExpensesByTripMember(@PathVariable Long tripId, @PathVariable Long memberId) {
-        return actualExpenseService.getAllExpensesByTripAndMember(tripId, memberId);
-    }
+//    @GetMapping("/{tripId}/member/{memberId}")
+//    @Operation(
+//            summary = "Получение всех расходов участника поездки",
+//            description = "Возвращает список всех расходов, за которые платил участник поездки",
+//            responses = {
+//                    @ApiResponse(responseCode = "200", description = "Список расходов успешно загружен",
+//                            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ExpenseParticipantResponse.class)))),
+//                    @ApiResponse(responseCode = "401", description = "Пользователь не авторизован",
+//                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
+//                                    @ExampleObject(
+//                                            name = "Example",
+//                                            value = """
+//                                                    {
+//                                                      "timestamp": "2025-06-08T12:00:00Z",
+//                                                      "status": 401,
+//                                                      "error": "Unauthorized",
+//                                                      "message": "Вы не передали access-токен!"
+//                                                    }
+//                                                    """,
+//                                            description = "Не был передан access-токен в заголовок"
+//                                    )
+//                            })
+//                    ),
+//                    @ApiResponse(
+//                            responseCode = "403",
+//                            description = "Пользователь не имеет доступа к этой поездке",
+//                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
+//                                    @ExampleObject(
+//                                            name = "Example",
+//                                            value = """
+//                                                    {
+//                                                      "timestamp": "2025-05-24T14:34:43.268036",
+//                                                      "status": 403,
+//                                                      "error": "Доступ запрещен",
+//                                                      "message": "Доступа нет!"
+//                                                    }
+//                                                    """,
+//                                            description = "Недостаточно прав для получения информации о расходах участника"
+//                                    )
+//                            })
+//                    ),
+//                    @ApiResponse(responseCode = "404", description = "Поездка или участник не найдены",
+//                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class)))
+//            }
+//    )
+//    public List<ExpenseParticipantResponse> getAllExpensesByTripMember(@PathVariable Long tripId, @PathVariable Long memberId) {
+//        return actualExpenseService.getAllExpensesByTripAndMember(tripId, memberId);
+//    }
 
-    @PostMapping
+    @PostMapping("/{tripId}")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
             summary = "Создание нового расхода",
@@ -227,8 +227,9 @@ public class ActualExpenseController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class)))
             }
     )
-    public ExpenseResponse createExpense(@Valid @RequestBody ExpenseRequest expenseDto) {
-        return actualExpenseService.createExpense(expenseDto);
+    public ExpenseResponse createExpense(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                         @PathVariable Long tripId, @Valid @RequestBody ExpenseRequest expenseDto) {
+        return actualExpenseService.createExpense(userDetails.getUser(), tripId, expenseDto);
     }
 
     @DeleteMapping("/{expenseId}")

@@ -80,6 +80,10 @@ public class TripServiceImpl implements TripService {
     public TripResponse createTrip(TripRequest tripRequest, User user) {
         log.info("Создание новой поездки пользователем с ID: {}", user.getId());
 
+        if (!tripRequest.getEndDate().isAfter(tripRequest.getStartDate())) {
+            throw new ValidationException("Дата конца поездки должна быть позже начала!");
+        }
+
         Trip trip = tripMapper.toEntity(tripRequest);
         trip.setCreator(user);
         trip.setStatus(ForTripAndInvitationStatus.ACTIVE);

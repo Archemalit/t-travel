@@ -23,7 +23,6 @@ public class TokenAuthenticationFailureHandler implements AuthenticationFailureH
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
@@ -46,7 +45,7 @@ public class TokenAuthenticationFailureHandler implements AuthenticationFailureH
                 error,
                 message
         );
-
+        response.setStatus(status);
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
