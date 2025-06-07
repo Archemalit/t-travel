@@ -88,7 +88,7 @@ class MemberServiceTest {
     void inviteMember_successfullyInvited_returnsSimpleResponse() {
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
         when(userRepository.findUserByPhoneNumber("79888888888")).thenReturn(Optional.of(invitedUser));
-        when(tripParticipantRepository.existsByTripIdAndUserId(1L, 2L)).thenReturn(false);
+        when(tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn(1L, 2L, List.of(TripParticipantStatus.ACCEPTED))).thenReturn(false);
         when(tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(1L, 2L, ForTripAndInvitationStatus.ACTIVE))
                 .thenReturn(false);
 
@@ -122,7 +122,7 @@ class MemberServiceTest {
     void inviteMember_userAlreadyParticipant_throwsValidationException() {
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
         when(userRepository.findUserByPhoneNumber("79888888888")).thenReturn(Optional.of(invitedUser));
-        when(tripParticipantRepository.existsByTripIdAndUserId(1L, 2L)).thenReturn(true);
+        when(tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn(1L, 2L, List.of(TripParticipantStatus.ACCEPTED))).thenReturn(true);
 
         assertThatThrownBy(() -> memberService.inviteMember(1L, creator, inviteRequest))
                 .isInstanceOf(ValidationException.class);
@@ -133,7 +133,7 @@ class MemberServiceTest {
     void inviteMember_activeInvitationExists_throwsValidationException() {
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
         when(userRepository.findUserByPhoneNumber("79888888888")).thenReturn(Optional.of(invitedUser));
-        when(tripParticipantRepository.existsByTripIdAndUserId(1L, 2L)).thenReturn(false);
+        when(tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn(1L, 2L, List.of(TripParticipantStatus.ACCEPTED))).thenReturn(false);
         when(tripInvitationRepository.existsByTripIdAndInvitedUserIdAndStatus(1L, 2L, ForTripAndInvitationStatus.ACTIVE))
                 .thenReturn(true);
 
@@ -151,7 +151,7 @@ class MemberServiceTest {
                 .build();
 
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
-        when(tripParticipantRepository.findByTripIdAndUserId(1L, 2L)).thenReturn(Optional.of(participant));
+        when(tripParticipantRepository.findByTripIdAndUserIdAndStatus(1L, 2L, TripParticipantStatus.ACCEPTED)).thenReturn(Optional.of(participant));
         when(tripInvitationRepository.findAllByTripIdAndInvitedUserId(1L, 2L)).thenReturn(List.of());
 
         memberService.removeMember(1L, 2L, creator);
@@ -182,7 +182,7 @@ class MemberServiceTest {
     @DisplayName("removeMember — участник не найден — выбрасывает ParticipantNotFoundException")
     void removeMember_participantNotFound_throwsParticipantNotFoundException() {
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
-        when(tripParticipantRepository.findByTripIdAndUserId(1L, 2L)).thenReturn(Optional.empty());
+        when(tripParticipantRepository.findByTripIdAndUserIdAndStatus(1L, 2L, TripParticipantStatus.ACCEPTED)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> memberService.removeMember(1L, 2L, creator))
                 .isInstanceOf(ParticipantNotFoundException.class);

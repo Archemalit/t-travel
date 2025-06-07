@@ -270,7 +270,7 @@ public class TripController {
         tripService.deleteTrip(id, userDetails.getId());
     }
 
-    @PatchMapping("/{id}/archive")
+    @PatchMapping("/{tripId}/archive")
     @Operation(
             summary = "Архивирование поездки",
             description = "Переводит поездку в архивный статус, если пользователь — её создатель",
@@ -318,7 +318,7 @@ public class TripController {
             }
     )
     public void archiveTrip(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                      @PathVariable Long id) {
-        tripService.archiveTrip(id, userDetails.getId());
+                                      @PathVariable Long tripId) {
+        tripService.archiveTrip(tripId, userDetails.getId());
     }
 }
