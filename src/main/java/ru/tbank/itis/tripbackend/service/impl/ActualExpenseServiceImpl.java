@@ -21,6 +21,7 @@ import ru.tbank.itis.tripbackend.service.UserService;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -49,36 +50,47 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
                 .map(expenseMapper::toDto).toList();
     }
 
-    @Override
-    public List<ExpenseParticipantResponse> getAllExpensesByTripAndMember(Long tripId, Long memberId) {
-        TripParticipant tripParticipant = tripParticipantRepository.findByTripIdAndUserId(tripId, memberId)
-                .orElseThrow(() -> new ParticipantNotFoundException(tripId, memberId));
-        return tripParticipant.getExpenseParticipations().stream().map(expenseParticipantMapper::toDto).toList();
-    }
+//    @Override
+//    public List<ExpenseParticipantResponse> getAllExpensesByTripAndMember(Long tripId, Long memberId) {
+//
+//        TripParticipant tripParticipant = tripParticipantRepository.findByTripIdAndUserId(tripId, memberId)
+//                .orElseThrow(() -> new ParticipantNotFoundException(tripId, memberId));
+//        return tripParticipant.getExpenseParticipations().stream().map(expenseParticipantMapper::toDto).toList();
+//    }
 
     @Override
-    public ExpenseResponse createExpense(ExpenseRequest expenseDto) {
-        Trip trip = tripRepository.findById(expenseDto.getTripId())
-                .orElseThrow(() -> new TripNotFoundException(expenseDto.getTripId()));
-        User paidBy = userRepository.findById(expenseDto.getPaidByUserId())
-                .orElseThrow(() -> new UserNotFoundException(expenseDto.getPaidByUserId()));
-
+    public ExpenseResponse createExpense(User paidBy, Long tripId, ExpenseRequest expenseDto) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException(tripId));
+        boolean isMember = tripParticipantRepository.existsByTripIdAndUserId(trip.getId(), paidBy.getId());
+        if (!isMember) {
+            throw new ForbiddenAccessException("Вы не являетесь участником поездки, поэтому не можете создать расход!");
+        }
         Expense expense = expenseMapper.toEntity(expenseDto, trip, paidBy);
 
         Set<ExpenseParticipant> participants = new HashSet<>();
+        Set<Long> paidForIds = new HashSet<>();
         for (ExpenseParticipantRequest expenseParticipant : expenseDto.getParticipants()) {
-            TripParticipant participant = tripParticipantRepository.findByTripIdAndUserId(expenseDto.getTripId(), expenseParticipant.getParticipantId())
-                            .orElseThrow(() -> new ParticipantNotFoundException(expenseDto.getTripId(), expenseParticipant.getParticipantId()));
+            TripParticipant participant = tripParticipantRepository.findByTripIdAndUserId(tripId, expenseParticipant.getParticipantId())
+                            .orElseThrow(() -> new ParticipantNotFoundException(tripId, expenseParticipant.getParticipantId()));
+            if (Objects.equals(participant.getUser().getId(), paidBy.getId())) {
+//                так как расход на самого себя записал, его нигде отображать не нужно
+                continue;
+            }
+            if (paidForIds.contains(participant.getId())) {
+                throw new SeveralExpensesForUser(participant.getUser().getId());
+            }
             participants.add(ExpenseParticipant.builder()
                             .expense(expense)
                             .participant(participant)
                             .paidBy(paidBy)
                             .amount(expenseParticipant.getAmount())
                     .build());
+            paidForIds.add(participant.getId());
         }
+        if (paidForIds.isEmpty()) { throw new ExpenseForMySelfException(); }
         expense.setParticipants(participants);
         expenseRepository.save(expense);
-
         return expenseMapper.toDto(expense);
     }
 
@@ -86,7 +98,7 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
     public void deleteExpense(Long userId, Long expenseId) {
         Expense expense = expenseRepository.findById(expenseId)
                 .orElseThrow(() -> new ExpenseNotFoundException(expenseId));
-        if (expense.getPaidBy().getId().equals(userId)) {
+        if (!Objects.equals(expense.getPaidBy().getId(), userId)) {
             throw new ForbiddenAccessException("Только создатель траты может её удалить!");
         }
 

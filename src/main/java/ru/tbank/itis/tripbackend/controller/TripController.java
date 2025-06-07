@@ -56,8 +56,9 @@ public class TripController {
             }
     )
     public List<TripResponse> getAllTrips(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                          @RequestParam(name = "onlyCreator", required = false, defaultValue = "false") boolean onlyCreator) {
-        return tripService.getAllTripsByUserId(userDetails.getId(), onlyCreator);
+                                          @RequestParam(name = "onlyCreator", required = false, defaultValue = "false") boolean onlyCreator,
+                                          @RequestParam(name = "onlyArchive", required = false, defaultValue = "false") boolean onlyArchive) {
+        return tripService.getAllTripsByUserId(userDetails.getId(), onlyCreator, onlyArchive);
     }
 
     @GetMapping("/{id}")

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="2025-06-07-create-expense-table" author="Divirov Arsen">
+        <createTable tableName="expenses">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="category" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trip_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="paid_by_user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="expenses"
+                baseColumnNames="trip_id"
+                constraintName="fk_expense_trip"
+                referencedTableName="trips"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="NO ACTION"/>
+
+        <addForeignKeyConstraint
+                baseTableName="expenses"
+                baseColumnNames="paid_by_user_id"
+                constraintName="fk_expense_paid_by"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="NO ACTION"/>
+    </changeSet>
+
+</databaseChangeLog>
