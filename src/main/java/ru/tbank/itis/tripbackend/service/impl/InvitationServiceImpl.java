@@ -45,9 +45,10 @@ public class InvitationServiceImpl implements InvitationService {
             throw new ExpiredInvitationException("Статус приглашения: " + invitation.getStatus());
         }
 
-        TripParticipant participant = tripParticipantRepository.findByTripIdAndUserId(
+        TripParticipant participant = tripParticipantRepository.findByTripIdAndUserIdAndStatus(
                 invitation.getTrip().getId(),
-                userId
+                userId,
+                TripParticipantStatus.PENDING
         ).orElseThrow(() -> new ParticipantNotFoundException(invitation.getTrip().getId(), userId));
 
         participant.setStatus(TripParticipantStatus.ACCEPTED);
@@ -71,9 +72,10 @@ public class InvitationServiceImpl implements InvitationService {
             throw new ValidationException("Приглашение не активно");
         }
 
-        TripParticipant participant = tripParticipantRepository.findByTripIdAndUserId(
+        TripParticipant participant = tripParticipantRepository.findByTripIdAndUserIdAndStatus(
                 invitation.getTrip().getId(),
-                userId
+                userId,
+                TripParticipantStatus.PENDING
         ).orElseThrow(() -> new ParticipantNotFoundException(invitation.getTrip().getId(), userId));
 
         participant.setStatus(TripParticipantStatus.REJECTED);

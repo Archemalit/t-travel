@@ -21,6 +21,7 @@ import ru.tbank.itis.tripbackend.mapper.TripMapperImpl;
 import ru.tbank.itis.tripbackend.model.Trip;
 import ru.tbank.itis.tripbackend.model.TripParticipant;
 import ru.tbank.itis.tripbackend.model.User;
+import ru.tbank.itis.tripbackend.repository.TripParticipantRepository;
 import ru.tbank.itis.tripbackend.repository.TripRepository;
 import ru.tbank.itis.tripbackend.service.impl.TripServiceImpl;
 
@@ -40,6 +41,8 @@ class TripServiceTest {
     private TripServiceImpl tripService;
     @Mock
     private TripRepository tripRepository;
+    @Mock
+    private TripParticipantRepository tripParticipantRepository;
     @Spy
     private TripMapper tripMapper = new TripMapperImpl();
 
@@ -116,6 +119,8 @@ class TripServiceTest {
     @DisplayName("Получение поездки по ID — поездка существует и пользователь участник — возвращает данные")
     void getTripById_whenTripExistsAndUserIsParticipant_shouldReturnTrip() {
         when(tripRepository.findById(1L)).thenReturn(Optional.of(mockTrip));
+        when(tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn(1L, mockUser.getId(), List.of(TripParticipantStatus.ACCEPTED, TripParticipantStatus.PENDING)))
+                .thenReturn(true);
 
         TripResponse result = tripService.getTripById(1L, mockUser.getId());
 
@@ -138,6 +143,8 @@ class TripServiceTest {
                 .setId(1L)
                 .setParticipants(new HashSet<>());
         when(tripRepository.findById(1L)).thenReturn(Optional.of(tripWithoutUser));
+        when(tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn(1L, mockUser.getId(), List.of(TripParticipantStatus.ACCEPTED, TripParticipantStatus.PENDING)))
+                .thenReturn(false);
 
         assertThatThrownBy(() -> tripService.getTripById(1L, 1L))
                 .isInstanceOf(ForbiddenAccessException.class);

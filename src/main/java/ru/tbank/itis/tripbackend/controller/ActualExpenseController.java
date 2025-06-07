@@ -77,8 +77,9 @@ public class ActualExpenseController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class)))
             }
     )
-    public ExpenseResponse getExpenseById(@PathVariable Long expenseId) {
-        return actualExpenseService.getExpenseById(expenseId);
+    public ExpenseResponse getExpenseById(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                          @PathVariable Long expenseId) {
+        return actualExpenseService.getExpenseById(userDetails.getId(), expenseId);
     }
 
     @GetMapping("/trip/{tripId}")
@@ -126,8 +127,9 @@ public class ActualExpenseController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class)))
             }
     )
-    public List<ExpenseResponse> getAllExpensesByTrip(@PathVariable Long tripId) {
-        return actualExpenseService.getAllExpensesByTrip(tripId);
+    public List<ExpenseResponse> getAllExpensesByTrip(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                      @PathVariable Long tripId) {
+        return actualExpenseService.getAllExpensesByTrip(userDetails.getId(), tripId);
     }
 
 //    @GetMapping("/{tripId}/member/{memberId}")
