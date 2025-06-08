@@ -90,61 +90,61 @@ public class MemberController {
         memberService.inviteMember(tripId, userDetails.getUser(), inviteRequest);
     }
 
-    @DeleteMapping("/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(
-            summary = "Удаление участника из поездки",
-            description = "Удаляет участника из поездки или он сам выходит из неё. Только создатель поездки может удалять участников.",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Участник успешно удален"),
-                    @ApiResponse(responseCode = "401", description = "Пользователь не авторизован",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
-                                    @ExampleObject(
-                                            name = "Example",
-                                            value = """
-                                                    {
-                                                      "timestamp": "2025-06-08T12:00:00Z",
-                                                      "status": 401,
-                                                      "error": "Unauthorized",
-                                                      "message": "Вы не передали access-токен!"
-                                                    }
-                                                    """,
-                                            description = "Не был передан access-токен в заголовок"
-                                    )
-                            })
-                    ),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "Пользователь не имеет доступа к этой поездке",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
-                                    @ExampleObject(
-                                            name = "Example",
-                                            value = """
-                                                    {
-                                                      "timestamp": "2025-05-24T14:34:43.268036",
-                                                      "status": 403,
-                                                      "error": "Доступ запрещен",
-                                                      "message": "Доступа нет!"
-                                                    }
-                                                    """,
-                                            description = "Недостаточно прав для удаления участников из поездки"
-                                    )
-                            })
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Поездка или пользователь не найдены",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class))
-                    )
-            }
-    )
-    public void removeMember(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long tripId,
-            @PathVariable Long userId
-    ) {
-        memberService.removeMember(tripId, userId, userDetails.getUser());
-    }
+//    @DeleteMapping("/{userId}")
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    @Operation(
+//            summary = "Удаление участника из поездки",
+//            description = "Удаляет участника из поездки или он сам выходит из неё. Только создатель поездки может удалять участников.",
+//            responses = {
+//                    @ApiResponse(responseCode = "204", description = "Участник успешно удален"),
+//                    @ApiResponse(responseCode = "401", description = "Пользователь не авторизован",
+//                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
+//                                    @ExampleObject(
+//                                            name = "Example",
+//                                            value = """
+//                                                    {
+//                                                      "timestamp": "2025-06-08T12:00:00Z",
+//                                                      "status": 401,
+//                                                      "error": "Unauthorized",
+//                                                      "message": "Вы не передали access-токен!"
+//                                                    }
+//                                                    """,
+//                                            description = "Не был передан access-токен в заголовок"
+//                                    )
+//                            })
+//                    ),
+//                    @ApiResponse(
+//                            responseCode = "403",
+//                            description = "Пользователь не имеет доступа к этой поездке",
+//                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class), examples = {
+//                                    @ExampleObject(
+//                                            name = "Example",
+//                                            value = """
+//                                                    {
+//                                                      "timestamp": "2025-05-24T14:34:43.268036",
+//                                                      "status": 403,
+//                                                      "error": "Доступ запрещен",
+//                                                      "message": "Доступа нет!"
+//                                                    }
+//                                                    """,
+//                                            description = "Недостаточно прав для удаления участников из поездки"
+//                                    )
+//                            })
+//                    ),
+//                    @ApiResponse(
+//                            responseCode = "404",
+//                            description = "Поездка или пользователь не найдены",
+//                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class))
+//                    )
+//            }
+//    )
+//    public void removeMember(
+//            @AuthenticationPrincipal UserDetailsImpl userDetails,
+//            @PathVariable Long tripId,
+//            @PathVariable Long userId
+//    ) {
+//        memberService.removeMember(tripId, userId, userDetails.getUser());
+//    }
 
     @GetMapping
     @Operation(

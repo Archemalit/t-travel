@@ -83,32 +83,32 @@ public class MemberServiceImpl implements MemberService {
         tripParticipantRepository.save(participant);
     }
 
-    @Override
-    @Transactional
-    public void removeMember(Long tripId, Long userId, User creator) {
-        Trip trip = tripRepository.findById(tripId)
-                .orElseThrow(() -> new TripNotFoundException(tripId));
-
-        if (!trip.getCreator().getId().equals(creator.getId()) && !creator.getId().equals(userId)) {
-            throw new ForbiddenAccessException("Только создатель поездки может удалять участников");
-        }
-
-        if (trip.getCreator().getId().equals(userId)) {
-            throw new ForbiddenAccessException("Создатель поездки не может удалить себя из поездки," +
-                    " но может удалить всю группу со всеми участниками");
-        }
-
-        TripParticipant participant = tripParticipantRepository.findByTripIdAndUserIdAndStatus(tripId, userId, TripParticipantStatus.ACCEPTED)
-                .orElseThrow(() -> new ParticipantNotFoundException(tripId, userId));
-
-        tripParticipantRepository.delete(participant);
-
-        tripInvitationRepository.findAllByTripIdAndInvitedUserId(tripId, userId)
-                .forEach(invitation -> {
-                    invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
-                    tripInvitationRepository.save(invitation);
-                });
-    }
+//    @Override
+//    @Transactional
+//    public void removeMember(Long tripId, Long userId, User creator) {
+//        Trip trip = tripRepository.findById(tripId)
+//                .orElseThrow(() -> new TripNotFoundException(tripId));
+//
+//        if (!trip.getCreator().getId().equals(creator.getId()) && !creator.getId().equals(userId)) {
+//            throw new ForbiddenAccessException("Только создатель поездки может удалять участников");
+//        }
+//
+//        if (trip.getCreator().getId().equals(userId)) {
+//            throw new ForbiddenAccessException("Создатель поездки не может удалить себя из поездки," +
+//                    " но может удалить всю группу со всеми участниками");
+//        }
+//
+//        TripParticipant participant = tripParticipantRepository.findByTripIdAndUserIdAndStatus(tripId, userId, TripParticipantStatus.ACCEPTED)
+//                .orElseThrow(() -> new ParticipantNotFoundException(tripId, userId));
+//
+//        tripParticipantRepository.delete(participant);
+//
+//        tripInvitationRepository.findAllByTripIdAndInvitedUserId(tripId, userId)
+//                .forEach(invitation -> {
+//                    invitation.setStatus(ForTripAndInvitationStatus.ARCHIVED);
+//                    tripInvitationRepository.save(invitation);
+//                });
+//    }
 
     @Override
     public List<TripParticipantDto> getActiveMembers(Long tripId, User currentUser) {
