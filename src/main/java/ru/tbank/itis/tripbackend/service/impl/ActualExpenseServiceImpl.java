@@ -3,6 +3,7 @@ package ru.tbank.itis.tripbackend.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dto.request.ExpenseParticipantRequest;
 import ru.tbank.itis.tripbackend.dto.request.ExpenseRequest;
@@ -70,6 +71,7 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
 //    }
 
     @Override
+    @Transactional
     public ExpenseResponse createExpense(User paidBy, Long tripId, ExpenseRequest expenseDto) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(tripId));
