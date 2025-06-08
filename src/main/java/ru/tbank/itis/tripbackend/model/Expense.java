@@ -30,7 +30,7 @@ public class Expense {
     @Column(nullable = false)
     private ExpenseCategory category;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "trip_id", nullable = false)
     private Trip trip;
 
