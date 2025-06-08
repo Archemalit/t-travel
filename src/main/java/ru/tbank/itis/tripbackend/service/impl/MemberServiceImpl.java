@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
+import ru.tbank.itis.tripbackend.dictionary.NotificationType;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dto.TripParticipantDto;
 import ru.tbank.itis.tripbackend.dto.request.InviteRequest;
@@ -17,6 +18,7 @@ import ru.tbank.itis.tripbackend.repository.TripParticipantRepository;
 import ru.tbank.itis.tripbackend.repository.TripRepository;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
 import ru.tbank.itis.tripbackend.service.MemberService;
+import ru.tbank.itis.tripbackend.service.NotificationService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +31,7 @@ public class MemberServiceImpl implements MemberService {
     private final UserRepository userRepository;
     private final TripInvitationRepository tripInvitationRepository;
     private final TripParticipantRepository tripParticipantRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -59,6 +62,17 @@ public class MemberServiceImpl implements MemberService {
                 .build();
 
         tripInvitationRepository.save(invitation);
+
+        String message = String.format("%s %s пригласил вас в поездку '%s'",
+                creator.getFirstName(),
+                creator.getLastName(),
+                trip.getTitle());
+
+        notificationService.createAndSendNotification(
+                invitedUser.getId(),
+                tripId,
+                NotificationType.TRIP_INVITATION,
+                message);
 
         TripParticipant participant = TripParticipant.builder()
                 .trip(trip)

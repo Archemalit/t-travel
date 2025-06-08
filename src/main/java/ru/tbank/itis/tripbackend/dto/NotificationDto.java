@@ -7,13 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.tbank.itis.tripbackend.dictionary.NotificationType;
 
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationDto {
-
     private Long id;
 
     @NotNull(message = "ID поездки обязательно")
@@ -30,5 +28,4 @@ public class NotificationDto {
 
     @NotNull(message = "Статус прочтения обязателен")
     private Boolean isRead;
-
 }

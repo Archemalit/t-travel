@@ -49,7 +49,11 @@ class MemberServiceTest {
     @Mock
     private TripParticipantRepository tripParticipantRepository;
 
+    @Mock
+    private NotificationService notificationService;
+
     private User creator;
+    private User inviterUser;
     private User invitedUser;
     private Trip trip;
     private InviteRequest inviteRequest;
