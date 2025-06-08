@@ -48,7 +48,10 @@ public class TripServiceImpl implements TripService {
                             return trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED;
                         }
                         return trip.getStatus() == ForTripAndInvitationStatus.ACTIVE;
-                    });
+                    })
+                    .map(tripMapper::toDto)
+                    .collect(Collectors.toList());
+
         } else {
             log.info("Получаем все поездки, где пользователь участник");
             trips = tripRepository.findByParticipantsUserId(userId).stream()
@@ -57,7 +60,9 @@ public class TripServiceImpl implements TripService {
                             return trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED;
                         }
                         return trip.getStatus() == ForTripAndInvitationStatus.ACTIVE;
-                    });
+                    })
+                    .map(tripMapper::toDto)
+                    .collect(Collectors.toList());
         }
 
         log.info("Найдено {} поездок для пользователя с ID: {}", trips.size(), userId);
@@ -75,8 +80,8 @@ public class TripServiceImpl implements TripService {
                     return new TripNotFoundException(tripId);
                 });
 
-        boolean isParticipant = trip.getParticipants().stream()
-                .anyMatch(participant -> participant.getUser().getId().equals(userId));
+        boolean isParticipant = tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
+                (tripId, userId, List.of(TripParticipantStatus.ACCEPTED, TripParticipantStatus.PENDING));
 
         if (!isParticipant) {
             log.warn("Пользователь с ID: {} не является участником поездки с ID: {}", userId, tripId);
