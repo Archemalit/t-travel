@@ -1,5 +1,6 @@
 package ru.tbank.itis.tripbackend.handler;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -207,6 +208,42 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 "Ошибка распределения расходов ",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(NotificationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public SimpleErrorResponse handleNotificationNotFound(NotificationNotFoundException ex) {
+        return new SimpleErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Уведомление не найдено",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(FirebaseMessagingException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public SimpleErrorResponse handleFirebaseMessagingException(FirebaseMessagingException ex) {
+        return new SimpleErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Ошибка отправки push-уведомления",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public SimpleErrorResponse handleRuntimeException(RuntimeException ex) {
+        if (ex.getCause() instanceof FirebaseMessagingException) {
+            return handleFirebaseMessagingException((FirebaseMessagingException) ex.getCause());
+        }
+        return new SimpleErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Внутренняя ошибка сервера",
                 ex.getMessage()
         );
     }
