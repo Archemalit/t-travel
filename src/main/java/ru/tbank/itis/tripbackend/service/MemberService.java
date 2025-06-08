@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface MemberService {
     void inviteMember(Long tripId, User creator, InviteRequest inviteRequest);
-    void removeMember(Long tripId, Long userId, User creator);
+//    void removeMember(Long tripId, Long userId, User creator);
     List<TripParticipantDto> getActiveMembers(Long tripId, User currentUser);
 }
