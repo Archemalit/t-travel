@@ -94,7 +94,7 @@ public class MemberController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(
             summary = "Удаление участника из поездки",
-            description = "Удаляет участника из поездки. Только создатель поездки может удалять участников.",
+            description = "Удаляет участника из поездки или он сам выходит из неё. Только создатель поездки может удалять участников.",
             responses = {
                     @ApiResponse(responseCode = "204", description = "Участник успешно удален"),
                     @ApiResponse(responseCode = "401", description = "Пользователь не авторизован",

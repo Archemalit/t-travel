@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="add-tag-1.0.0" author="Divirov Arsen">
+        <tagDatabase tag="v.1.0.0"/>
+    </changeSet>
+
+    <include file="2025-06-07-create-user-table.xml" relativeToChangelogFile="true"/>
+    <include file="2025-06-07-create-user-phone-number-index.xml" relativeToChangelogFile="true"/>
+    <include file="2025-06-07-create-trip-table.xml" relativeToChangelogFile="true"/>
+    <include file="2025-06-07-create-trip-participant-table.xml" relativeToChangelogFile="true"/>
+    <include file="2025-06-07-create-trip-invitation-table.xml" relativeToChangelogFile="true"/>
+    <include file="2025-06-07-create-expense-table.xml" relativeToChangelogFile="true"/>
+    <include file="2025-06-07-create-expense-participant-table.xml" relativeToChangelogFile="true"/>
+
+<!--    <include file="2025-06-02-insert-user-table.xml" relativeToChangelogFile="true"/>-->
+<!--    <include file="2025-06-02-create-faq-table.xml" relativeToChangelogFile="true"/>-->
+<!--    <include file="2025-06-02-insert-faq-table.xml" relativeToChangelogFile="true"/>-->
+<!--    <include file="2025-06-02-create-company-table.xml" relativeToChangelogFile="true"/>-->
+<!--    <include file="2025-06-02-insert-company-table.xml" relativeToChangelogFile="true"/>-->
+<!--    <include file="2025-06-02-create-feedback-table.xml" relativeToChangelogFile="true"/>-->
+<!--    <include file="2025-06-02-insert-feedback-table.xml" relativeToChangelogFile="true"/>-->
+
+</databaseChangeLog>

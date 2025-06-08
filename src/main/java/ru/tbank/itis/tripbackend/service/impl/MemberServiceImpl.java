@@ -46,7 +46,7 @@ public class MemberServiceImpl implements MemberService {
         User invitedUser = userRepository.findUserByPhoneNumber(inviteRequest.getPhone())
                 .orElseThrow(() -> new UserNotFoundException("Пользователь с номером " + inviteRequest.getPhone() + " не найден"));
 
-        if (tripParticipantRepository.existsByTripIdAndUserId(tripId, invitedUser.getId())) {
+        if (tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn(tripId, invitedUser.getId(), List.of(TripParticipantStatus.ACCEPTED))) {
             throw new ValidationException("Пользователь уже является участником поездки или его уже пригласили");
         }
 
@@ -89,16 +89,16 @@ public class MemberServiceImpl implements MemberService {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(tripId));
 
+        if (!trip.getCreator().getId().equals(creator.getId()) && !creator.getId().equals(userId)) {
+            throw new ForbiddenAccessException("Только создатель поездки может удалять участников");
+        }
+
         if (trip.getCreator().getId().equals(userId)) {
             throw new ForbiddenAccessException("Создатель поездки не может удалить себя из поездки," +
                     " но может удалить всю группу со всеми участниками");
         }
 
-        if (!trip.getCreator().getId().equals(creator.getId()) && !creator.getId().equals(userId)) {
-            throw new ForbiddenAccessException("Только создатель поездки может удалять участников");
-        }
-
-        TripParticipant participant = tripParticipantRepository.findByTripIdAndUserId(tripId, userId)
+        TripParticipant participant = tripParticipantRepository.findByTripIdAndUserIdAndStatus(tripId, userId, TripParticipantStatus.ACCEPTED)
                 .orElseThrow(() -> new ParticipantNotFoundException(tripId, userId));
 
         tripParticipantRepository.delete(participant);
@@ -115,7 +115,7 @@ public class MemberServiceImpl implements MemberService {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(tripId));
 
-        boolean isParticipant = tripParticipantRepository.existsByTripIdAndUserIdAndStatus(tripId, currentUser.getId(), TripParticipantStatus.ACCEPTED);
+        boolean isParticipant = tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn(tripId, currentUser.getId(), List.of(TripParticipantStatus.ACCEPTED, TripParticipantStatus.PENDING));
         if (!isParticipant) {
             throw new ForbiddenAccessException("Только участники поездки могут просматривать список участников");
         }

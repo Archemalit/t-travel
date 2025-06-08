@@ -24,6 +24,10 @@ repositories {
 }
 
 dependencies {
+//    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:1.33.0")
+    implementation("org.liquibase:liquibase-core")
+    implementation ("org.springframework.boot:spring-boot-starter-actuator")
+    implementation ("io.micrometer:micrometer-registry-prometheus")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")

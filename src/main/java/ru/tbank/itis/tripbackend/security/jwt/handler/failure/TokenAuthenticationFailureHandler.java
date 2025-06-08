@@ -23,26 +23,29 @@ public class TokenAuthenticationFailureHandler implements AuthenticationFailureH
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
         String message = "Неверные учетные данные";
+        int status = HttpServletResponse.SC_BAD_REQUEST;
+        String error = "Bad Request";
 
         if (exception instanceof BadCredentialsException
                 || exception instanceof AuthMethodNotSupportedException) {
             message = exception.getMessage();
         } else if (exception.getCause() instanceof TokenExpiredException) {
             message = exception.getMessage();
+            status = HttpServletResponse.SC_UNAUTHORIZED;
+            error = "Unauthorized";
         }
 
         SimpleErrorResponse errorResponse = new SimpleErrorResponse(
                 LocalDateTime.now(),
-                HttpServletResponse.SC_UNAUTHORIZED,
-                "Unauthorized",
+                status,
+                error,
                 message
         );
-
+        response.setStatus(status);
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));

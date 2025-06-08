@@ -20,13 +20,17 @@ public class ExpenseParticipant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "expense_id", nullable = false)
     private Expense expense;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "participant_id", nullable = false)
     private TripParticipant participant;
+
+    @ManyToOne
+    @JoinColumn(name = "paid_by_user_id", nullable = false)
+    private User paidBy;
 
     @Column(nullable = false)
     private BigDecimal amount;

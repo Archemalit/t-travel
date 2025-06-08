@@ -11,7 +11,8 @@ spring:
     password: ${DATABASE_PASSWORD:pass}
     driver-class-name: org.postgresql.Driver
   liquibase:
-    enabled: false
+    enabled: true
+    change-log: ./migrations/master.xml
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,6 +21,13 @@ spring:
   redis:
     host: redis
     port: 6379
+
+logging:
+  structured:
+    format:
+      file: ecs
+  file:
+    name: logs/app.json
 
 server:
   port: 8080
@@ -34,3 +42,28 @@ jwt:
   secret: ${JWT_SECRET:secret}
   access-token:
     ttl: 1000000
+
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include[0]: health
+        include[1]: info
+        include[2]: metrics
+        include[3]: prometheus
+  appoptics:
+    metrics:
+      export:
+        enabled: true
+
+#otel:
+#  exporter:
+#    otlp:
+#      endpoint: http://localhost:4317
+#  resource:
+#    attributes:
+#      service.name: your-service-name

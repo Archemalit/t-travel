@@ -27,9 +27,6 @@ public class Trip {
     @Column(nullable = false, length = 100)
     private String title;
 
-    @Column(length = 500)
-    private String description;
-
     @Column(nullable = false, name = "start_date")
     private LocalDate startDate;
 
@@ -39,7 +36,7 @@ public class Trip {
     @Column(nullable = false, name = "total_budget")
     private Double totalBudget;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
@@ -47,7 +44,7 @@ public class Trip {
     @Column(nullable = false)
     private ForTripAndInvitationStatus status;
 
-    @OneToMany(mappedBy = "trip", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "trip")
     private List<Expense> expenses;
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
