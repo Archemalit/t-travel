@@ -21,6 +21,7 @@ import ru.tbank.itis.tripbackend.repository.UserRepository;
 import ru.tbank.itis.tripbackend.service.ActualExpenseService;
 import ru.tbank.itis.tripbackend.service.UserService;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -84,17 +85,23 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
 
         Set<ExpenseParticipant> participants = new HashSet<>();
         Set<Long> paidForIds = new HashSet<>();
+        BigDecimal totalAmount = new BigDecimal(0);
         for (ExpenseParticipantRequest expenseParticipant : expenseDto.getParticipants()) {
             TripParticipant participant = tripParticipantRepository.findByTripIdAndUserIdAndStatus
                             (tripId, expenseParticipant.getParticipantId(), TripParticipantStatus.ACCEPTED)
                             .orElseThrow(() -> new ParticipantNotFoundException(tripId, expenseParticipant.getParticipantId()));
-            if (Objects.equals(participant.getUser().getId(), paidBy.getId())) {
-//                так как расход на самого себя записал, его нигде отображать не нужно
-                continue;
-            }
             if (paidForIds.contains(participant.getId())) {
                 throw new SeveralExpensesForUser(participant.getUser().getId());
             }
+            if (Objects.equals(participant.getUser().getId(), paidBy.getId())) {
+//                так как расход на самого себя записал, его нигде отображать не нужно
+                if (!paidForIds.contains(participant.getId())) {
+                    totalAmount = totalAmount.add(expenseParticipant.getAmount());
+                }
+                paidForIds.add(participant.getId());
+                continue;
+            }
+            totalAmount = totalAmount.add(expenseParticipant.getAmount());
             participants.add(ExpenseParticipant.builder()
                             .expense(expense)
                             .participant(participant)
@@ -105,6 +112,8 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
         }
         if (paidForIds.isEmpty()) { throw new ExpenseForMySelfException(); }
         expense.setParticipants(participants);
+        expense.setTotalAmount(totalAmount);
+
         expenseRepository.save(expense);
         return expenseMapper.toDto(expense);
     }
