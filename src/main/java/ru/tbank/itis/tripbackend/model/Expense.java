@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import ru.tbank.itis.tripbackend.dictionary.ExpenseCategory;
 import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,6 +30,9 @@ public class Expense {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ExpenseCategory category;
+
+    @Column(nullable = false)
+    private BigDecimal totalAmount;
 
     @ManyToOne
     @JoinColumn(name = "trip_id", nullable = false)
