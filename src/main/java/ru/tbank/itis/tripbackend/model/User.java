@@ -37,6 +37,9 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "device_token")
+    private String deviceToken;
+
     @OneToMany(mappedBy = "creator", fetch = FetchType.LAZY)
     private List<Trip> createdTrips;
 

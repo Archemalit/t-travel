@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
+import ru.tbank.itis.tripbackend.dictionary.NotificationType;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dto.request.TripRequest;
 import ru.tbank.itis.tripbackend.dto.response.TripResponse;
@@ -17,6 +18,7 @@ import ru.tbank.itis.tripbackend.model.TripParticipant;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.TripParticipantRepository;
 import ru.tbank.itis.tripbackend.repository.TripRepository;
+import ru.tbank.itis.tripbackend.service.NotificationService;
 import ru.tbank.itis.tripbackend.service.TripService;
 
 import java.util.List;
@@ -31,6 +33,7 @@ public class TripServiceImpl implements TripService {
     private final TripRepository tripRepository;
     private final TripParticipantRepository tripParticipantRepository;
     private final TripMapper tripMapper;
+    private final NotificationService notificationService;
 
     @Override
     public List<TripResponse> getAllTripsByUserId(Long userId, boolean onlyCreator, boolean onlyArchive) {
@@ -48,6 +51,7 @@ public class TripServiceImpl implements TripService {
                     })
                     .map(tripMapper::toDto)
                     .collect(Collectors.toList());
+
         } else {
             log.info("Получаем все поездки, где пользователь участник");
             trips = tripRepository.findByParticipantsUserId(userId).stream()
@@ -84,6 +88,10 @@ public class TripServiceImpl implements TripService {
             throw new ForbiddenAccessException("Доступа нет!");
         }
 
+//        if (trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED) {
+//            throw new ForbiddenAccessException("Поездка находится в архиве");
+//        }
+
         log.info("Поездка с ID: {} успешно найдена для пользователя с ID: {}", tripId, userId);
         return tripMapper.toDto(trip);
     }
@@ -108,7 +116,7 @@ public class TripServiceImpl implements TripService {
 
         trip.setParticipants(Set.of(participant));
         Trip savedTrip = tripRepository.save(trip);
-
+        // TOOD: status проверить
         log.info("Поездка с ID: {} успешно создана", savedTrip.getId());
         return tripMapper.toDto(savedTrip);
     }
@@ -145,7 +153,22 @@ public class TripServiceImpl implements TripService {
         Trip updatedTrip = tripRepository.save(existingTrip);
         log.info("Поездка с ID: {} успешно обновлена", tripId);
 
+        String message = String.format("Поездка '%s' была изменена", updatedTrip.getTitle());
+        notifyTripParticipants(updatedTrip, userId, message);
+
         return tripMapper.toDto(updatedTrip);
+    }
+
+    private void notifyTripParticipants(Trip trip, Long excludedUserId, String message) {
+        trip.getParticipants().stream()
+                .filter(p -> !p.getUser().getId().equals(excludedUserId))
+                .forEach(participant -> {
+                    notificationService.createAndSendNotification(
+                            participant.getUser().getId(),
+                            trip.getId(),
+                            NotificationType.TRIP_UPDATED,
+                            message);
+                });
     }
 
     @Override
@@ -183,7 +206,7 @@ public class TripServiceImpl implements TripService {
                 });
 
         boolean isParticipant = trip.getParticipants().stream()
-                .anyMatch(p -> p.getUser().getId().equals(userId));
+                .anyMatch(participant -> participant.getUser().getId().equals(userId));
 
         if (!isParticipant) {
             log.warn("Пользователь с ID: {} не является участником поездки с ID: {}", userId, tripId);
