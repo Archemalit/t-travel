@@ -6,12 +6,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
+import ru.tbank.itis.tripbackend.dto.JwtTokenPairDto;
+import ru.tbank.itis.tripbackend.dto.request.UserRegistrationRequest;
 import ru.tbank.itis.tripbackend.dto.request.UserUpdateProfileRequest;
+import ru.tbank.itis.tripbackend.dto.response.UserExistsResponse;
 import ru.tbank.itis.tripbackend.dto.response.UserProfileResponse;
+import ru.tbank.itis.tripbackend.exception.PhoneNumberAlreadyTakenException;
 import ru.tbank.itis.tripbackend.exception.UserNotFoundException;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
+import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
 import ru.tbank.itis.tripbackend.service.impl.UserServiceImpl;
 
 import java.util.Optional;
@@ -19,13 +25,19 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceImplTest {
+class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private JwtService jwtService;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -39,9 +51,69 @@ class UserServiceImplTest {
                 .firstName("John")
                 .lastName("Doe")
                 .phoneNumber("79999999999")
-                .password("password")
+                .password("encodedPassword")
                 .role(UserRole.USER)
                 .build();
+    }
+
+    @Test
+    void register_shouldRegisterNewUserAndReturnTokens() {
+        UserRegistrationRequest request = new UserRegistrationRequest(
+                "John",
+                "Doe",
+                "79999999999",
+                "password123",
+                "password123"
+        );
+
+        when(userRepository.existsByPhoneNumber("79999999999")).thenReturn(false);
+        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+        when(jwtService.getTokenPair("79999999999")).thenReturn(
+                new JwtTokenPairDto("accessToken", "refreshToken")
+        );
+
+        JwtTokenPairDto result = userService.register(request);
+
+        assertThat(result.accessToken()).isEqualTo("accessToken");
+        assertThat(result.refreshToken()).isEqualTo("refreshToken");
+        verify(userRepository).save(any(User.class));
+        verify(passwordEncoder).encode("password123");
+    }
+
+    @Test
+    void register_whenPhoneNumberTaken_shouldThrowException() {
+        UserRegistrationRequest request = new UserRegistrationRequest(
+                "John",
+                "Doe",
+                "79999999999",
+                "password123",
+                "password123"
+        );
+
+        when(userRepository.existsByPhoneNumber("79999999999")).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.register(request))
+                .isInstanceOf(PhoneNumberAlreadyTakenException.class)
+                .hasMessageContaining("Пользователь с таким номером телефона уже существует");
+    }
+
+    @Test
+    void doesUserExistByPhoneNumber_whenUserExists_shouldReturnTrue() {
+        when(userRepository.existsByPhoneNumber("79999999999")).thenReturn(true);
+
+        UserExistsResponse response = userService.doesUserExistByPhoneNumber("79999999999");
+
+        assertThat(response.isExists()).isTrue();
+    }
+
+    @Test
+    void doesUserExistByPhoneNumber_whenUserNotExists_shouldReturnFalse() {
+        when(userRepository.existsByPhoneNumber("79999999999")).thenReturn(false);
+
+        UserExistsResponse response = userService.doesUserExistByPhoneNumber("79999999999");
+
+        assertThat(response.isExists()).isFalse();
     }
 
     @Test

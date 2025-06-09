@@ -16,8 +16,4 @@ public interface UserService {
     UserExistsResponse doesUserExistByPhoneNumber(String phoneNumber);
     UserProfileResponse getUserProfile(Long userId);
     UserProfileResponse updateProfile(Long userId, UserUpdateProfileRequest request);
-    Set<User> getUserSetByUserDtoSet(Set<UserDto> members);
-//    void logout(HttpServletRequest request);
-//    AuthResponse login(UserLoginRequest request);
-//    AuthResponse refresh(RefreshTokenRequest request);
 }
