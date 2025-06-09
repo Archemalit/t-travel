@@ -5,27 +5,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
+import ru.tbank.itis.tripbackend.dto.DebtDto;
 import ru.tbank.itis.tripbackend.dto.request.ExpenseParticipantRequest;
 import ru.tbank.itis.tripbackend.dto.request.ExpenseRequest;
-import ru.tbank.itis.tripbackend.dto.response.ExpenseParticipantResponse;
 import ru.tbank.itis.tripbackend.dto.response.ExpenseResponse;
 import ru.tbank.itis.tripbackend.exception.*;
 import ru.tbank.itis.tripbackend.mapper.ExpenseMapper;
-import ru.tbank.itis.tripbackend.mapper.ExpenseParticipantMapper;
-import ru.tbank.itis.tripbackend.mapper.TripParticipantMapper;
 import ru.tbank.itis.tripbackend.model.*;
 import ru.tbank.itis.tripbackend.repository.ExpenseRepository;
 import ru.tbank.itis.tripbackend.repository.TripParticipantRepository;
 import ru.tbank.itis.tripbackend.repository.TripRepository;
-import ru.tbank.itis.tripbackend.repository.UserRepository;
 import ru.tbank.itis.tripbackend.service.ActualExpenseService;
-import ru.tbank.itis.tripbackend.service.UserService;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -128,6 +121,75 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
 
         expenseRepository.deleteById(expenseId);
     }
+
+    @Override
+    public List<DebtDto> getAllDebtsByTrip(Long tripId, Long userId) {
+        boolean isParticipant = tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
+                (tripId, userId, List.of(TripParticipantStatus.ACCEPTED));
+        if (!isParticipant) {
+            throw new ForbiddenAccessException("Вы не можете посмотреть список долгов, так как не являетесь участником этой поездки!");
+        }
+
+        List<Transaction> transactions = calculateDebts(expenseRepository.findAllByTripId(tripId));
+
+        return transactions.stream()
+                .map(transaction -> DebtDto.builder()
+                        .tripId(tripId)
+                        .amount(transaction.getAmount())
+                        .debtorId(transaction.getDebtorId())
+                        .creditorId(transaction.getCreditorId())
+                        .build())
+                .toList();
+    }
+
+
+    private List<Transaction> calculateDebts(List<Expense> expenses) {
+        Map<Long, BigDecimal> balanceMap = new HashMap<>();
+
+        for (Expense expense : expenses) {
+            for (ExpenseParticipant p : expense.getParticipants()) {
+                // Тот, кто оплатил, получает назад деньги
+                balanceMap.merge(p.getPaidBy().getId(), p.getAmount(), BigDecimal::add);
+                // Тот, за кого заплатили, становится должен
+                balanceMap.merge(p.getParticipant().getId(), p.getAmount().negate(), BigDecimal::add);
+            }
+        }
+
+        Queue<Map.Entry<Long, BigDecimal>> creditors = new LinkedList<>();
+        Queue<Map.Entry<Long, BigDecimal>> debtors = new LinkedList<>();
+
+        for (Map.Entry<Long, BigDecimal> entry : balanceMap.entrySet()) {
+            if (entry.getValue().compareTo(BigDecimal.ZERO) > 0) {
+                creditors.offer(entry);
+            } else if (entry.getValue().compareTo(BigDecimal.ZERO) < 0) {
+                entry.setValue(entry.getValue().negate());
+                debtors.offer(entry);
+            }
+        }
+
+        List<Transaction> result = new ArrayList<>();
+
+        while (!debtors.isEmpty() && !creditors.isEmpty()) {
+            var debtor = debtors.peek();
+            var creditor = creditors.peek();
+            BigDecimal min = debtor.getValue().min(creditor.getValue());
+
+            result.add(Transaction.builder()
+                    .debtorId(debtor.getKey())
+                    .creditorId(creditor.getKey())
+                    .amount(min)
+                    .build());
+
+            debtor.setValue(debtor.getValue().subtract(min));
+            creditor.setValue(creditor.getValue().subtract(min));
+
+            if (debtor.getValue().compareTo(BigDecimal.ZERO) == 0) debtors.poll();
+            if (creditor.getValue().compareTo(BigDecimal.ZERO) == 0) creditors.poll();
+        }
+
+        return result;
+    }
+
 
 //    @Override
 //    public ActualExpenseDto updateExpense(Long userId, Long tripId, Long expenseId, ActualExpenseDto expenseDto) {

@@ -13,8 +13,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import ru.tbank.itis.tripbackend.dto.DebtDto;
 import ru.tbank.itis.tripbackend.dto.request.ExpenseRequest;
-import ru.tbank.itis.tripbackend.dto.response.ExpenseParticipantResponse;
 import ru.tbank.itis.tripbackend.dto.response.ExpenseResponse;
 import ru.tbank.itis.tripbackend.dto.response.SimpleErrorResponse;
 import ru.tbank.itis.tripbackend.dto.response.ValidationErrorResponse;
@@ -279,8 +279,16 @@ public class ActualExpenseController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class)))
             }
     )
+
+
     public void deleteExpense(@AuthenticationPrincipal UserDetailsImpl userDetails,
                               @PathVariable Long expenseId) {
         actualExpenseService.deleteExpense(userDetails.getId(), expenseId);
     }
+
+    @GetMapping("/trip/{tripId}/debts")
+    public List<DebtDto> getAllDebtsByTrip(@PathVariable Long tripId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return actualExpenseService.getAllDebtsByTrip(tripId, userDetails.getId());
+    }
+
 }

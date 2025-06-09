@@ -16,12 +16,12 @@ public class DebtDto {
 
     private Long id;
 
+    @NotNull(message = "ID поездки обязательно")
+    private Long tripId;
+
     @NotNull(message = "Сумма долга обязательна")
     @Positive(message = "Сумма долга должна быть положительной")
     private BigDecimal amount;
-
-    @NotNull(message = "ID поездки обязательно")
-    private Long tripId;
 
     @NotNull(message = "ID должника обязательно")
     private Long debtorId;
