@@ -18,14 +18,15 @@ public class PlannedExpense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, name = "trip_id")
-    private Long tripId;
-
     @Column(nullable = false)
     private String header;
 
     @Column(nullable = false)
     private Double amount;
+
+    @ManyToOne
+    @JoinColumn(name = "trip_id", nullable = false)
+    private Trip trip;
 
     @Column(nullable = false)
     private ExpenseCategory category;

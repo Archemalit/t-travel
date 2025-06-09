@@ -191,7 +191,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ExpenseForMySelfException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public SimpleErrorResponse handleExpenseForMySelf(ExpenseForMySelfException ex) {
         return new SimpleErrorResponse(
                 LocalDateTime.now(),
@@ -223,6 +223,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(PlannedExpenseNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public SimpleErrorResponse handlePlannedExpenseNotFound(PlannedExpenseNotFoundException ex) {
+        return new SimpleErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Запланированный расход не найден",
+                ex.getMessage()
+        );
+    }
     @ExceptionHandler(FirebaseMessagingException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public SimpleErrorResponse handleFirebaseMessagingException(FirebaseMessagingException ex) {
@@ -244,6 +254,17 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Внутренняя ошибка сервера",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(PlannedExpenseException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public SimpleErrorResponse handlePlannedExpense(PlannedExpenseException ex) {
+        return new SimpleErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Ошибка запланированного расхода",
                 ex.getMessage()
         );
     }
