@@ -128,31 +128,4 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
 
         expenseRepository.deleteById(expenseId);
     }
-
-//    @Override
-//    public ActualExpenseDto updateExpense(Long userId, Long tripId, Long expenseId, ActualExpenseDto expenseDto) {
-//        Optional<ActualExpense> expense = actualExpenseRepository.findById(expenseId);
-//        if (expense.isEmpty()) {
-//            throw new ExpenseNotFoundException(expenseId);
-//        } else if (!actualExpenseRepository.existsByTripId(tripId)) {
-//            throw new ExpenseNotFoundForTripException(tripId);
-//        } else if (!expense.get().getPaidByUserId().equals(userId)) {
-//            throw new RuntimeException("Не достаточно прав для редактирования расхода");
-//        }
-//
-//        ActualExpense oldExpense = actualExpenseRepository.findById(expenseId).get();
-//        actualExpenseRepository.delete(oldExpense);
-//        expenseDto.setId(expenseId);
-//        Set<User> members = userService.getUserSetByUserDtoSet(expenseDto.getMembers());
-//        ActualExpense newExpense = actualExpenseMapper.toEntity(expenseDto, members);
-//        ActualExpense updatedExpense = actualExpenseRepository.save(newExpense);
-//
-//        if (actualExpenseRepository.existsById(updatedExpense.getId())) {
-//            log.info("{} Расход успешно отредактирован", LocalDateTime.now());
-//            return actualExpenseMapper.toDto(updatedExpense);
-//        } else {
-//            throw new RuntimeException("Ошибка при редактировании расхода");
-//        }
-//    }
-//
 }
