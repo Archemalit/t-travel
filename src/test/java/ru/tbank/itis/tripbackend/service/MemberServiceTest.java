@@ -10,9 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
+import ru.tbank.itis.tripbackend.dto.TripParticipantDto;
 import ru.tbank.itis.tripbackend.dto.request.InviteRequest;
 import ru.tbank.itis.tripbackend.exception.ForbiddenAccessException;
-import ru.tbank.itis.tripbackend.exception.ParticipantNotFoundException;
 import ru.tbank.itis.tripbackend.exception.TripNotFoundException;
 import ru.tbank.itis.tripbackend.exception.ValidationException;
 import ru.tbank.itis.tripbackend.model.Trip;
@@ -28,6 +28,7 @@ import ru.tbank.itis.tripbackend.service.impl.MemberServiceImpl;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -55,8 +56,10 @@ class MemberServiceTest {
     private User creator;
     private User inviterUser;
     private User invitedUser;
+    private User participantUser;
     private Trip trip;
     private InviteRequest inviteRequest;
+    private TripParticipant activeParticipant;
 
     @BeforeEach
     void setUp() {
@@ -76,14 +79,30 @@ class MemberServiceTest {
                 .role(UserRole.USER)
                 .build();
 
+        participantUser = User.builder()
+                .id(3L)
+                .firstName("Mike")
+                .lastName("Johnson")
+                .phoneNumber("79777777777")
+                .role(UserRole.USER)
+                .build();
+
         trip = Trip.builder()
                 .id(1L)
                 .title("Test Trip")
                 .creator(creator)
+                .status(ForTripAndInvitationStatus.ACTIVE)
                 .build();
 
         inviteRequest = InviteRequest.builder()
                 .phone("79888888888")
+                .build();
+
+        activeParticipant = TripParticipant.builder()
+                .id(1L)
+                .trip(trip)
+                .user(participantUser)
+                .status(TripParticipantStatus.ACCEPTED)
                 .build();
     }
 
@@ -146,49 +165,53 @@ class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("removeMember — успешно удален участник — возвращает SimpleResponse")
-    void removeMember_successfullyRemoved_returnsSimpleResponse() {
-        TripParticipant participant = TripParticipant.builder()
-                .trip(trip)
-                .user(invitedUser)
-                .status(TripParticipantStatus.ACCEPTED)
-                .build();
-
+    @DisplayName("getActiveMembers — успешное получение списка участников — возвращает список участников")
+    void getActiveMembers_success_returnsParticipantList() {
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
-        when(tripParticipantRepository.findByTripIdAndUserIdAndStatus(1L, 2L, TripParticipantStatus.ACCEPTED)).thenReturn(Optional.of(participant));
-        when(tripInvitationRepository.findAllByTripIdAndInvitedUserId(1L, 2L)).thenReturn(List.of());
+        when(tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn(1L, 1L,
+                List.of(TripParticipantStatus.ACCEPTED, TripParticipantStatus.PENDING))).thenReturn(true);
+        when(tripParticipantRepository.findAllByTripIdAndStatus(1L, TripParticipantStatus.ACCEPTED))
+                .thenReturn(List.of(activeParticipant));
 
-        memberService.removeMember(1L, 2L, creator);
+        List<TripParticipantDto> result = memberService.getActiveMembers(1L, creator);
 
-        verify(tripParticipantRepository).delete(participant);
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getUserId()).isEqualTo(3L);
+        assertThat(result.get(0).getStatus()).isEqualTo("ACCEPTED");
     }
 
     @Test
-    @DisplayName("removeMember — поездка не найдена — выбрасывает TripNotFoundException")
-    void removeMember_tripNotFound_throwsTripNotFoundException() {
+    @DisplayName("getActiveMembers — поездка не найдена — выбрасывает TripNotFoundException")
+    void getActiveMembers_tripNotFound_throwsTripNotFoundException() {
         when(tripRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> memberService.removeMember(1L, 2L, creator))
+        assertThatThrownBy(() -> memberService.getActiveMembers(1L, creator))
                 .isInstanceOf(TripNotFoundException.class);
     }
 
     @Test
-    @DisplayName("removeMember — пользователь не создатель — выбрасывает ForbiddenAccessException")
-    void removeMember_userNotCreator_throwsForbiddenAccessException() {
-        User notCreator = User.builder().id(999L).build();
+    @DisplayName("getActiveMembers — пользователь не участник — выбрасывает ForbiddenAccessException")
+    void getActiveMembers_userNotParticipant_throwsForbiddenAccessException() {
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
+        when(tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn(1L, 1L,
+                List.of(TripParticipantStatus.ACCEPTED, TripParticipantStatus.PENDING))).thenReturn(false);
 
-        assertThatThrownBy(() -> memberService.removeMember(1L, 2L, notCreator))
-                .isInstanceOf(ForbiddenAccessException.class);
+        assertThatThrownBy(() -> memberService.getActiveMembers(1L, creator))
+                .isInstanceOf(ForbiddenAccessException.class)
+                .hasMessageContaining("Только участники поездки могут просматривать список участников");
     }
 
     @Test
-    @DisplayName("removeMember — участник не найден — выбрасывает ParticipantNotFoundException")
-    void removeMember_participantNotFound_throwsParticipantNotFoundException() {
+    @DisplayName("getActiveMembers — поездка в архиве — выбрасывает ForbiddenAccessException")
+    void getActiveMembers_tripArchived_throwsForbiddenAccessException() {
+        trip.setStatus(ForTripAndInvitationStatus.ARCHIVED);
         when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
-        when(tripParticipantRepository.findByTripIdAndUserIdAndStatus(1L, 2L, TripParticipantStatus.ACCEPTED)).thenReturn(Optional.empty());
+        when(tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn(1L, 1L,
+                List.of(TripParticipantStatus.ACCEPTED, TripParticipantStatus.PENDING))).thenReturn(true);
 
-        assertThatThrownBy(() -> memberService.removeMember(1L, 2L, creator))
-                .isInstanceOf(ParticipantNotFoundException.class);
+        assertThatThrownBy(() -> memberService.getActiveMembers(1L, creator))
+                .isInstanceOf(ForbiddenAccessException.class)
+                .hasMessageContaining("Поездка находится в архиве");
     }
+
 }

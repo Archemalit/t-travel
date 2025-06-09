@@ -48,8 +48,10 @@ class TripServiceTest {
 
     private User mockUser;
     private Trip mockTrip;
+    private Trip mockArchivedTrip;
     private TripRequest mockTripRequest;
     private TripResponse mockTripResponse;
+    private TripResponse mockArchivedTripResponse;
     private TripParticipant mockParticipant;
 
     @BeforeEach
@@ -77,6 +79,16 @@ class TripServiceTest {
                 .status(ForTripAndInvitationStatus.ACTIVE)
                 .build();
 
+        mockArchivedTrip = Trip.builder()
+                .id(2L)
+                .title("Archived Trip")
+                .startDate(startDate.minusDays(10))
+                .endDate(endDate.minusDays(10))
+                .totalBudget(budget)
+                .creator(mockUser)
+                .status(ForTripAndInvitationStatus.ARCHIVED)
+                .build();
+
         mockParticipant = TripParticipant.builder()
                 .id(1L)
                 .status(TripParticipantStatus.ACCEPTED)
@@ -101,6 +113,78 @@ class TripServiceTest {
                 .totalBudget(budget)
                 .status(ForTripAndInvitationStatus.ACTIVE)
                 .build();
+
+        mockArchivedTripResponse = TripResponse.builder()
+                .id(2L)
+                .title("Archived Trip")
+                .startDate(startDate.minusDays(10))
+                .endDate(endDate.minusDays(10))
+                .totalBudget(budget)
+                .status(ForTripAndInvitationStatus.ARCHIVED)
+                .build();
+    }
+
+    @Test
+    @DisplayName("Получение поездок пользователя — где он участник — возвращает список активных поездок")
+    void getAllTripsByUserId_withoutOnlyCreator_shouldReturnActiveParticipantTrips() {
+        when(tripRepository.findByParticipantsUserId(1L)).thenReturn(List.of(mockTrip, mockArchivedTrip));
+        when(tripMapper.toDto(mockTrip)).thenReturn(mockTripResponse);
+
+        List<TripResponse> result = tripService.getAllTripsByUserId(1L, false, false);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getTitle()).isEqualTo("Test Trip");
+        verify(tripRepository).findByParticipantsUserId(1L);
+    }
+
+    @Test
+    @DisplayName("Получение поездок пользователя — где он участник — возвращает список архивных поездок")
+    void getAllTripsByUserId_withoutOnlyCreator_shouldReturnArchivedParticipantTrips() {
+        when(tripRepository.findByParticipantsUserId(1L)).thenReturn(List.of(mockTrip, mockArchivedTrip));
+        when(tripMapper.toDto(mockArchivedTrip)).thenReturn(mockArchivedTripResponse);
+
+        List<TripResponse> result = tripService.getAllTripsByUserId(1L, false, true);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getTitle()).isEqualTo("Archived Trip");
+        verify(tripRepository).findByParticipantsUserId(1L);
+    }
+
+    @Test
+    @DisplayName("Получение поездок пользователя — где он создатель — возвращает список активных поездок")
+    void getAllTripsByUserId_withOnlyCreator_shouldReturnActiveCreatorTrips() {
+        when(tripRepository.findByCreatorId(1L)).thenReturn(List.of(mockTrip, mockArchivedTrip));
+        when(tripMapper.toDto(mockTrip)).thenReturn(mockTripResponse);
+
+        List<TripResponse> result = tripService.getAllTripsByUserId(1L, true, false);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getTitle()).isEqualTo("Test Trip");
+        verify(tripRepository).findByCreatorId(1L);
+    }
+
+    @Test
+    @DisplayName("Получение поездок пользователя — где он создатель — возвращает список архивных поездок")
+    void getAllTripsByUserId_withOnlyCreator_shouldReturnArchivedCreatorTrips() {
+        when(tripRepository.findByCreatorId(1L)).thenReturn(List.of(mockTrip, mockArchivedTrip));
+        when(tripMapper.toDto(mockArchivedTrip)).thenReturn(mockArchivedTripResponse);
+
+        List<TripResponse> result = tripService.getAllTripsByUserId(1L, true, true);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getTitle()).isEqualTo("Archived Trip");
+        verify(tripRepository).findByCreatorId(1L);
+    }
+
+    @Test
+    @DisplayName("Получение поездок пользователя — нет поездок — возвращает пустой список")
+    void getAllTripsByUserId_noTrips_shouldReturnEmptyList() {
+        when(tripRepository.findByParticipantsUserId(1L)).thenReturn(List.of());
+
+        List<TripResponse> result = tripService.getAllTripsByUserId(1L, false, false);
+
+        assertThat(result).isEmpty();
+        verify(tripRepository).findByParticipantsUserId(1L);
     }
 
     @Test
@@ -222,5 +306,49 @@ class TripServiceTest {
 
         assertThatThrownBy(() -> tripService.deleteTrip(1L, 1L))
                 .isInstanceOf(TripNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("Архивирование поездки — пользователь является участником — успешно переведено в архив")
+    void archiveTrip_whenUserIsParticipant_shouldArchiveTripSuccessfully() {
+        when(tripRepository.findById(1L)).thenReturn(Optional.of(mockTrip));
+
+        tripService.archiveTrip(1L, mockUser.getId());
+
+        verify(tripRepository).save(argThat(trip ->
+                trip.getStatus() == ForTripAndInvitationStatus.ARCHIVED
+        ));
+    }
+
+    @Test
+    @DisplayName("Архивирование поездки — поездка не найдена — выбрасывает TripNotFoundException")
+    void archiveTrip_whenTripNotFound_shouldThrowTripNotFoundException() {
+        when(tripRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> tripService.archiveTrip(1L, 1L))
+                .isInstanceOf(TripNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("Архивирование поездки — пользователь не участник — выбрасывает ForbiddenAccessException")
+    void archiveTrip_whenUserIsNotParticipant_shouldThrowForbiddenAccessException() {
+        Trip tripWithoutUser = new Trip();
+        tripWithoutUser.setId(1L);
+        tripWithoutUser.setParticipants(new HashSet<>());
+        when(tripRepository.findById(1L)).thenReturn(Optional.of(tripWithoutUser));
+
+        assertThatThrownBy(() -> tripService.archiveTrip(1L, 1L))
+                .isInstanceOf(ForbiddenAccessException.class);
+    }
+
+    @Test
+    @DisplayName("Архивирование поездки — проверка статуса после сохранения")
+    void archiveTrip_verifyStatusAfterArchiving() {
+        when(tripRepository.findById(1L)).thenReturn(Optional.of(mockTrip));
+
+        tripService.archiveTrip(1L, mockUser.getId());
+
+        assertThat(mockTrip.getStatus()).isEqualTo(ForTripAndInvitationStatus.ARCHIVED);
+        verify(tripRepository).save(mockTrip);
     }
 }
