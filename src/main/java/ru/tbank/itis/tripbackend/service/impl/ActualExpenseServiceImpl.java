@@ -147,15 +147,12 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
                 .toList();
     }
 
-
     private List<Transaction> calculateDebts(List<Expense> expenses) {
         Map<Long, BigDecimal> balanceMap = new HashMap<>();
 
         for (Expense expense : expenses) {
             for (ExpenseParticipant p : expense.getParticipants()) {
-                // Тот, кто оплатил, получает назад деньги
                 balanceMap.merge(p.getPaidBy().getId(), p.getAmount(), BigDecimal::add);
-                // Тот, за кого заплатили, становится должен
                 balanceMap.merge(p.getParticipant().getId(), p.getAmount().negate(), BigDecimal::add);
             }
         }

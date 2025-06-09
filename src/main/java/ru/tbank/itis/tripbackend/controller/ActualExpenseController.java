@@ -24,7 +24,7 @@ import ru.tbank.itis.tripbackend.service.ActualExpenseService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/expenses")
+@RequestMapping("/api/v1/expenses")
 @RequiredArgsConstructor
 @Log4j2
 @Tag(name = "Expenses", description = "API для управления расходами поездок")
@@ -284,11 +284,6 @@ public class ActualExpenseController {
     public void deleteExpense(@AuthenticationPrincipal UserDetailsImpl userDetails,
                               @PathVariable Long expenseId) {
         actualExpenseService.deleteExpense(userDetails.getId(), expenseId);
-    }
-
-    @GetMapping("/trip/{tripId}/debts")
-    public List<DebtDto> getAllDebtsByTrip(@PathVariable Long tripId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return actualExpenseService.getAllDebtsByTrip(tripId, userDetails.getId());
     }
 
 }
