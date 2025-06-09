@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -41,19 +42,19 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingF
             throws AuthenticationException, IOException {
 
         if (!POST.asHttpMethod().matches(request.getMethod())) {
-            throw new AuthMethodNotSupportedException("Auth method not supported");
+            throw new AuthMethodNotSupportedException("Этот метод не поддерживается!");
         }
 
         UserLoginRequest loginRequest = JsonUtil.read(request.getReader(), UserLoginRequest.class);
 
-        if (!loginRequest.password().equals(loginRequest.repeatPassword())) {
-            throw new AuthMethodNotSupportedException("Passwords do not match");
-        }
-
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(loginRequest.phoneNumber(), loginRequest.password());
 
-        return getAuthenticationManager().authenticate(token);
+        try {
+            return getAuthenticationManager().authenticate(token);
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("Неверные данные!");
+        }
     }
 
     @Override

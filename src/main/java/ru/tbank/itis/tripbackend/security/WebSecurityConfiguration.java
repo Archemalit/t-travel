@@ -20,14 +20,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import ru.tbank.itis.tripbackend.repository.RefreshTokenRepository;
 import ru.tbank.itis.tripbackend.security.jwt.SkipPathRequestMatcher;
 import ru.tbank.itis.tripbackend.security.jwt.filter.TokenAuthenticationFilter;
 import ru.tbank.itis.tripbackend.security.jwt.login.LoginAuthenticationFilter;
 import ru.tbank.itis.tripbackend.security.jwt.login.RefreshTokenAuthenticationFilter;
 import ru.tbank.itis.tripbackend.security.jwt.service.JwtService;
+import ru.tbank.itis.tripbackend.service.RedisRefreshTokenService;
 
 import java.util.List;
 
@@ -37,7 +36,7 @@ import java.util.List;
 public class WebSecurityConfiguration {
 
     private final List<String> ANONYMOUS_PATHS = List.of(
-            "/api/v1/login", "/api/v1/register", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/refresh");
+            "/api/v1/login", "/api/v1/register", "/api/v1/check", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/refresh", "/actuator/**");
 
     @Bean
     public SecurityFilterChain apiSecurityFilterChain(
@@ -53,7 +52,7 @@ public class WebSecurityConfiguration {
                 .addFilterAt(loginAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(refreshTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/login", "/api/v1/register").permitAll()
+                        .requestMatchers("/api/v1/login", "/api/v1/register", "/api/v1/check", "/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(AbstractHttpConfigurer::disable);
@@ -70,7 +69,7 @@ public class WebSecurityConfiguration {
     public LoginAuthenticationFilter loginAuthenticationFilter(
             AuthenticationManager authenticationManager,
             @Qualifier("tokenAuthenticationSuccessHandler") AuthenticationSuccessHandler successHandler,
-            AuthenticationFailureHandler failureHandler
+            @Qualifier("tokenAuthenticationFailureHandler") AuthenticationFailureHandler failureHandler
     ) {
         return new LoginAuthenticationFilter(
                 "/api/v1/login", authenticationManager, successHandler, failureHandler);
@@ -80,7 +79,7 @@ public class WebSecurityConfiguration {
     public TokenAuthenticationFilter tokenAuthenticationFilter(
             JwtService jwtService,
             AuthenticationManager authenticationManager,
-            AuthenticationFailureHandler failureHandler) {
+            @Qualifier("defaultAuthenticationFailureHandler") AuthenticationFailureHandler failureHandler) {
         SkipPathRequestMatcher requestMatcher = new SkipPathRequestMatcher(ANONYMOUS_PATHS);
 
         return new TokenAuthenticationFilter(
@@ -91,11 +90,11 @@ public class WebSecurityConfiguration {
     public RefreshTokenAuthenticationFilter refreshTokenAuthenticationFilter(
             AuthenticationManager authenticationManager,
             @Qualifier("refreshTokenAuthenticationSuccessHandler") AuthenticationSuccessHandler successHandler,
-            AuthenticationFailureHandler failureHandler,
-            RefreshTokenRepository refreshTokenRepository,
+            @Qualifier("refreshTokenAuthenticationFailureHandler") AuthenticationFailureHandler failureHandler,
+            RedisRefreshTokenService redisRefreshTokenService,
             JwtService jwtService) {
         return new RefreshTokenAuthenticationFilter(
-                "/api/v1/refresh", authenticationManager, successHandler, failureHandler, refreshTokenRepository, jwtService);
+                "/api/v1/refresh", authenticationManager, successHandler, failureHandler, redisRefreshTokenService, jwtService);
     }
 
     @Bean
@@ -114,10 +113,10 @@ public class WebSecurityConfiguration {
         return provider;
     }
 
-    @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler() {
-        return new SimpleUrlAuthenticationFailureHandler();
-    }
+//    @Bean
+//    public AuthenticationFailureHandler authenticationFailureHandler() {
+//        return new SimpleUrlAuthenticationFailureHandler();
+//    }
 
     @Bean
     public JWTVerifier jwtVerifier(Algorithm algorithm) {

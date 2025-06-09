@@ -1,6 +1,7 @@
 package ru.tbank.itis.tripbackend.security.jwt.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,9 +25,16 @@ public class TokenAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String rawToken = (String) authentication.getCredentials();
 
-        if (jwtService.isAccessToken(rawToken)) {
-            throw new BadCredentialsException("It's not an access token!");
+        try {
+            if (jwtService.isAccessToken(rawToken)) {
+                throw new BadCredentialsException("Это не access-токен!");
+            }
+        } catch (TokenExpiredException ex) {
+            throw new BadCredentialsException("Токен истёк");
+        } catch (JWTVerificationException ex) {
+            throw new BadCredentialsException("Некорректный токен");
         }
+
 
         String username = getUsername(rawToken);
         UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
@@ -37,7 +45,7 @@ public class TokenAuthenticationProvider implements AuthenticationProvider {
         try {
             return jwtService.getPhoneNumber(rawToken);
         } catch (JWTVerificationException e) {
-            throw new BadCredentialsException("Invalid token");
+            throw new BadCredentialsException("Некорректный токен");
         }
     }
 

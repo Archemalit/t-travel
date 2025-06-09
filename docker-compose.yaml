@@ -9,6 +9,57 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5732:5432"
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: always
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    restart: always
+  prometheus:
+    image: prom/prometheus:v2.46.0
+    container_name: prometheus
+    #    profiles:
+    #      - full
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./metrics-service/prometheus/tmp:/prometheus
+      - ./metrics-service/prometheus:/etc/prometheus
+    command: --config.file=/etc/prometheus/prometheus.yml --log.level=debug
+  #    depends_on:
+  #      - trip
+  grafana:
+    image: grafana/grafana:10.0.3
+    container_name: grafana
+    #    profiles:
+    #      - full
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./metrics-service/grafana/tmp:/var/lib/grafana
+      - ./metrics-service/grafana/grafana.ini:/etc/grafana/grafana.ini
+    depends_on:
+      - prometheus
+  alertmanager:
+    image: prom/alertmanager:v0.25.0
+    container_name: alertmanager
+    #    profiles:
+    #      - full
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./metrics-service/alert-manager/tmp:/data
+      - ./metrics-service/alert-manager:/config
+    command: --config.file=/config/alertmanager.yaml --log.level=debug
+  #    depends_on:
+  #      - trip
   trip:
     build:
       context: .
@@ -17,9 +68,15 @@ services:
       - full
     container_name: trip
     restart: always
-    env_file:
-      - .env.prod
+    #    env_file:
+    #      - .env.prod
     ports:
       - "8080:8080"
     depends_on:
       - postgres
+      - redis
+
+volumes:
+  elk_data:
+  ls_data:
+  kb_data:

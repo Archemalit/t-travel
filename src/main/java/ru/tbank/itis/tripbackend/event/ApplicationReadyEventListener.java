@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import ru.tbank.itis.tripbackend.dictonary.UserRole;
+import ru.tbank.itis.tripbackend.dictionary.UserRole;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
 
@@ -14,7 +14,7 @@ import ru.tbank.itis.tripbackend.repository.UserRepository;
 @Profile("dev")
 @RequiredArgsConstructor
 public class ApplicationReadyEventListener {
-    private static final String ADMIN_PHONE_NUMBER = "7999999999";
+    private static final String ADMIN_PHONE_NUMBER = "79999999999";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -22,14 +22,24 @@ public class ApplicationReadyEventListener {
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
         if (userRepository.findUserByPhoneNumber(ADMIN_PHONE_NUMBER).isEmpty()) {
-            User user = new User()
-                    .setFirstName("Name")
-                    .setLastName("Surname")
-                    .setPhoneNumber(ADMIN_PHONE_NUMBER)
-                    .setPassword(passwordEncoder.encode("123"))
-                    .setRole(UserRole.ADMIN);
+            User user = User.builder()
+                    .firstName("Name")
+                    .lastName("Surname")
+                    .phoneNumber(ADMIN_PHONE_NUMBER)
+                    .password(passwordEncoder.encode("123"))
+                    .role(UserRole.ADMIN)
+                    .build();
+
+            User user1 = User.builder()
+                    .firstName("Name2")
+                    .lastName("Surname2")
+                    .phoneNumber("79999999998")
+                    .password(passwordEncoder.encode("123"))
+                    .role(UserRole.USER)
+                    .build();
 
             userRepository.save(user);
+            userRepository.save(user1);
         }
     }
 
