@@ -1,5 +1,6 @@
 package ru.tbank.itis.tripbackend.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,21 +13,21 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Информация о долге между участниками поездки")
 public class DebtDto {
 
-    private Long id;
+//    @Schema(description = "Уникальный идентификатор долга", example = "1")
+//    private Long id;
 
-    @NotNull(message = "Сумма долга обязательна")
-    @Positive(message = "Сумма долга должна быть положительной")
-    private BigDecimal amount;
-
-    @NotNull(message = "ID поездки обязательно")
+    @Schema(description = "ID поездки", example = "100")
     private Long tripId;
 
-    @NotNull(message = "ID должника обязательно")
+    @Schema(description = "Сумма долга", example = "500.0")
+    private BigDecimal amount;
+
+    @Schema(description = "ID должника", example = "2")
     private Long debtorId;
 
-    @NotNull(message = "ID кредитора обязательно")
+    @Schema(description = "ID кредитора", example = "3")
     private Long creditorId;
-
 }

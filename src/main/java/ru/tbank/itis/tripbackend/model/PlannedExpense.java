@@ -7,8 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.tbank.itis.tripbackend.dictionary.ExpenseCategory;
 
-@Entity
 @Data
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -28,6 +28,7 @@ public class PlannedExpense {
     @JoinColumn(name = "trip_id", nullable = false)
     private Trip trip;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ExpenseCategory category;
 

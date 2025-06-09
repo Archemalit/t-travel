@@ -5,10 +5,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import ru.tbank.itis.tripbackend.annotation.PasswordsMatch;
 
 @PasswordsMatch
 @Schema(description = "Запрос на регистрацию нового пользователя")
+@Builder
 public record UserRegistrationRequest(
         @NotBlank(message = "Имя не должно быть пустым")
         @Size(max = 25, message = "Имя должно быть не длиннее 25 символов")

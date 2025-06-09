@@ -2,7 +2,9 @@ plugins {
     java
     id("org.springframework.boot") version "3.4.3"
     id("io.spring.dependency-management") version "1.1.7"
+    id("jacoco")
 }
+
 
 group = "ru.tbank.itis"
 version = "0.0.1-SNAPSHOT"
@@ -50,4 +52,16 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+tasks.jacocoTestReport {
+    reports {
+        html.required.set(true)
+        csv.required.set(false)
+        xml.required.set(false)
+    }
 }

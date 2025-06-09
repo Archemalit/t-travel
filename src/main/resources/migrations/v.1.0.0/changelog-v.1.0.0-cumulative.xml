@@ -15,6 +15,7 @@
     <include file="2025-06-07-create-trip-invitation-table.xml" relativeToChangelogFile="true"/>
     <include file="2025-06-07-create-expense-table.xml" relativeToChangelogFile="true"/>
     <include file="2025-06-07-create-expense-participant-table.xml" relativeToChangelogFile="true"/>
+    <include file="2025-06-09-create-planed-expense-table.xml" relativeToChangelogFile="true"/>
 
 <!--    <include file="2025-06-02-insert-user-table.xml" relativeToChangelogFile="true"/>-->
 <!--    <include file="2025-06-02-create-faq-table.xml" relativeToChangelogFile="true"/>-->
