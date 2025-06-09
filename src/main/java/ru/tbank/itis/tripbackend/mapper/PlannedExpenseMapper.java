@@ -2,9 +2,7 @@ package ru.tbank.itis.tripbackend.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.tbank.itis.tripbackend.dto.ActualExpenseDto;
 import ru.tbank.itis.tripbackend.dto.PlannedExpenseDto;
-import ru.tbank.itis.tripbackend.model.ActualExpense;
 import ru.tbank.itis.tripbackend.model.PlannedExpense;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;

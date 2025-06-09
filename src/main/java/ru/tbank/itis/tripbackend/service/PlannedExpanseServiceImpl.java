@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.tbank.itis.tripbackend.dto.PlannedExpenseDto;
+import ru.tbank.itis.tripbackend.exception.TripNotFoundException;
 import ru.tbank.itis.tripbackend.mapper.PlannedExpenseMapper;
 import ru.tbank.itis.tripbackend.model.PlannedExpense;
 import ru.tbank.itis.tripbackend.repository.PlannedExpenseRepository;
+import ru.tbank.itis.tripbackend.repository.TripRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,7 +22,7 @@ public class PlannedExpanseServiceImpl implements PlannedExpenseService {
     private final PlannedExpenseRepository plannedExpenseRepository;
     private final PlannedExpenseMapper plannedExpenseMapper;
 
-    private final TripService tripService;
+    private final TripRepository tripRepository;
 
     @Override
     public PlannedExpenseDto getExpenseById(Long id) {
@@ -92,7 +94,8 @@ public class PlannedExpanseServiceImpl implements PlannedExpenseService {
 
 
     private boolean creationIsAvailable(Long tripId, PlannedExpenseDto expenseDto) {
-        Double tripBudget = tripService.getTripById(tripId).getTotalBudget();
+        Double tripBudget = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException(tripId)).getTotalBudget();
         Double expensesSum = plannedExpenseRepository.findAllByTripId(tripId).stream()
                 .map(PlannedExpense::getAmount)
                 .flatMapToDouble(DoubleStream::of)

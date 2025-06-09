@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.tbank.itis.tripbackend.dictonary.ExpenseCategory;
+import ru.tbank.itis.tripbackend.dictionary.ExpenseCategory;
 
 @Entity
 @Data
