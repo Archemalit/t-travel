@@ -172,6 +172,7 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
+    @Transactional
     public void deleteTrip(Long tripId, Long userId) {
         log.info("Удаление поездки с ID: {}", tripId);
 

@@ -44,14 +44,14 @@ public class Trip {
     @Column(nullable = false)
     private ForTripAndInvitationStatus status;
 
-    @OneToMany(mappedBy = "trip")
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
     private List<Expense> expenses;
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
     private Set<TripParticipant> participants = new HashSet<>();
 
-    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
-    private Set<Debt> debts = new HashSet<>();
+//    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
+//    private Set<Debt> debts = new HashSet<>();
 
 //    @OneToMany(mappedBy = "trip")
 //    private Set<Notification> notifications = new HashSet<>();

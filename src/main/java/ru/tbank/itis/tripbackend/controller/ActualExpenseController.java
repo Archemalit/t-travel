@@ -13,8 +13,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import ru.tbank.itis.tripbackend.dto.DebtDto;
 import ru.tbank.itis.tripbackend.dto.request.ExpenseRequest;
-import ru.tbank.itis.tripbackend.dto.response.ExpenseParticipantResponse;
 import ru.tbank.itis.tripbackend.dto.response.ExpenseResponse;
 import ru.tbank.itis.tripbackend.dto.response.SimpleErrorResponse;
 import ru.tbank.itis.tripbackend.dto.response.ValidationErrorResponse;
@@ -24,7 +24,7 @@ import ru.tbank.itis.tripbackend.service.ActualExpenseService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/expenses")
+@RequestMapping("/api/v1/expenses")
 @RequiredArgsConstructor
 @Log4j2
 @Tag(name = "Expenses", description = "API для управления расходами поездок")
@@ -279,8 +279,11 @@ public class ActualExpenseController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimpleErrorResponse.class)))
             }
     )
+
+
     public void deleteExpense(@AuthenticationPrincipal UserDetailsImpl userDetails,
                               @PathVariable Long expenseId) {
         actualExpenseService.deleteExpense(userDetails.getId(), expenseId);
     }
+
 }
