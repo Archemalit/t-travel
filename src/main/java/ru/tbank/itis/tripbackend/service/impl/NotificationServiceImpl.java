@@ -6,11 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.itis.tripbackend.dto.NotificationDto;
 import ru.tbank.itis.tripbackend.dictionary.NotificationType;
+import ru.tbank.itis.tripbackend.exception.TripNotFoundException;
 import ru.tbank.itis.tripbackend.exception.UserNotFoundException;
 import ru.tbank.itis.tripbackend.exception.NotificationNotFoundException;
 import ru.tbank.itis.tripbackend.model.Notification;
+import ru.tbank.itis.tripbackend.model.Trip;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.NotificationRepository;
+import ru.tbank.itis.tripbackend.repository.TripRepository;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
 import ru.tbank.itis.tripbackend.mapper.NotificationMapper;
 import ru.tbank.itis.tripbackend.service.NotificationService;
@@ -22,6 +25,7 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final TripRepository tripRepository;
     private final FirebaseMessaging firebaseMessaging;
     private final NotificationMapper notificationMapper;
 
@@ -41,12 +45,15 @@ public class NotificationServiceImpl implements NotificationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException(tripId));
+
         Notification notification = Notification.builder()
                 .message(message)
                 .isRead(false)
                 .type(type)
                 .user(user)
-                .trip(tripId.toString())
+                .trip(trip)
                 .build();
 
         Notification savedNotification = notificationRepository.save(notification);
@@ -61,7 +68,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional(readOnly = true)
     public List<NotificationDto> getUserNotifications(Long userId) {
-        // Упрощаем - больше не нужно искать User, передаем сразу userId
         return notificationRepository.findAllByUserIdOrderByIdDesc(userId).stream()
                 .map(notificationMapper::toDto)
                 .toList();
@@ -70,7 +76,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public NotificationDto markAsRead(Long notificationId, Long userId) {
-        // Упрощаем - передаем userId вместо User объекта
         Notification notification = notificationRepository.findByIdAndUserId(notificationId, userId)
                 .orElseThrow(() -> new NotificationNotFoundException(notificationId));
 
@@ -82,7 +87,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional(readOnly = true)
     public long getUnreadCount(Long userId) {
-        // Упрощаем - передаем userId вместо User объекта
         return notificationRepository.countByUserIdAndIsReadFalse(userId);
     }
 
