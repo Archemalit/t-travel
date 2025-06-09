@@ -15,7 +15,6 @@ import ru.tbank.itis.tripbackend.dictionary.ExpenseCategory;
 @AllArgsConstructor
 public class PlannedExpenseDto {
     private Long id;
-    private Long tripId;
 
     @NotBlank(message = "Заголовок не должен быть пустым")
     private String header;

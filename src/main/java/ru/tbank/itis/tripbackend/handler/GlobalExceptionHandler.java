@@ -223,6 +223,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(PlannedExpenseNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public SimpleErrorResponse handlePlannedExpenseNotFound(PlannedExpenseNotFoundException ex) {
+        return new SimpleErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Запланированный расход не найден",
+                ex.getMessage()
+        );
+    }
     @ExceptionHandler(FirebaseMessagingException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public SimpleErrorResponse handleFirebaseMessagingException(FirebaseMessagingException ex) {
