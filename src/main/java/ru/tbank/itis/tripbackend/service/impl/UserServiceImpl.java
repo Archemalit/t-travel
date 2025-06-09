@@ -86,12 +86,4 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole().name())
                 .build();
     }
-
-    @Override
-    public Set<User> getUserSetByUserDtoSet(Set<UserDto> members) {
-        return members.stream()
-                .map(member -> userRepository.findById(member.getId())
-                        .orElseThrow(() -> new RuntimeException("Пользователь с id: " + member.getId() + " не найден")))
-                .collect(Collectors.toSet());
-    }
 }

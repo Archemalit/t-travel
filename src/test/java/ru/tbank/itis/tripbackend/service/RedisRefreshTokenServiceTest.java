@@ -1,4 +1,4 @@
-package ru.tbank.itis.tripbackend.service.impl;
+package ru.tbank.itis.tripbackend.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import ru.tbank.itis.tripbackend.service.impl.RedisRefreshTokenServiceImpl;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class RedisRefreshTokenServiceImplTest {
+class RedisRefreshTokenServiceTest {
 
     @Mock
     private RedisTemplate<String, String> redisTemplate;

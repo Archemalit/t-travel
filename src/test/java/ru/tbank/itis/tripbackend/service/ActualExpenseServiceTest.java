@@ -1,4 +1,4 @@
-package ru.tbank.itis.tripbackend.service.impl;
+package ru.tbank.itis.tripbackend.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +17,7 @@ import ru.tbank.itis.tripbackend.model.*;
 import ru.tbank.itis.tripbackend.repository.ExpenseRepository;
 import ru.tbank.itis.tripbackend.repository.TripParticipantRepository;
 import ru.tbank.itis.tripbackend.repository.TripRepository;
+import ru.tbank.itis.tripbackend.service.impl.ActualExpenseServiceImpl;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -31,7 +32,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ActualExpenseServiceImplTest {
+class ActualExpenseServiceTest {
 
     @Mock
     private ExpenseRepository expenseRepository;
