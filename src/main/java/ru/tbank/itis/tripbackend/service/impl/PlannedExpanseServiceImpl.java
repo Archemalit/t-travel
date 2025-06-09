@@ -5,7 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dto.PlannedExpenseDto;
+import ru.tbank.itis.tripbackend.dto.request.PlannedExpenseRequest;
+import ru.tbank.itis.tripbackend.dto.response.PlannedExpenseResponse;
 import ru.tbank.itis.tripbackend.exception.ForbiddenAccessException;
+import ru.tbank.itis.tripbackend.exception.PlannedExpenseException;
 import ru.tbank.itis.tripbackend.exception.PlannedExpenseNotFoundException;
 import ru.tbank.itis.tripbackend.exception.TripNotFoundException;
 import ru.tbank.itis.tripbackend.mapper.PlannedExpenseMapper;
@@ -31,20 +34,20 @@ public class PlannedExpanseServiceImpl implements PlannedExpenseService {
 
     private final PlannedExpenseMapper plannedExpenseMapper;
 
-    @Override
-    public PlannedExpenseDto getExpenseById(Long tripId, Long userId, Long expenseId) {
-        if (!tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
-                (tripId, userId, List.of(TripParticipantStatus.ACCEPTED))) {
-            throw new ForbiddenAccessException("Чтобы посмотреть запланированный расход, вам нужно быть участником поездки");
-        }
-            PlannedExpense expense = plannedExpenseRepository.findById(expenseId)
-                .orElseThrow(() -> new PlannedExpenseNotFoundException(expenseId));
+//    @Override
+//    public PlannedExpenseResponse getExpenseById(Long tripId, Long userId, Long expenseId) {
+//        if (!tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
+//                (tripId, userId, List.of(TripParticipantStatus.ACCEPTED))) {
+//            throw new ForbiddenAccessException("Чтобы посмотреть запланированный расход, вам нужно быть участником поездки");
+//        }
+//            PlannedExpense expense = plannedExpenseRepository.findById(expenseId)
+//                .orElseThrow(() -> new PlannedExpenseNotFoundException(expenseId));
+//
+//        return plannedExpenseMapper.mapExpenseToExpenseDto(expense);
+//    }
 
-        return plannedExpenseMapper.mapExpenseToExpenseDto(expense);
-    }
-
     @Override
-    public List<PlannedExpenseDto> getAllExpensesByTripId(Long tripId, Long userId) {
+    public List<PlannedExpenseResponse> getAllExpensesByTripId(Long tripId, Long userId) {
         if (!tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
                 (tripId, userId, List.of(TripParticipantStatus.ACCEPTED))) {
             throw new ForbiddenAccessException("Чтобы посмотреть запланированный расход, вам нужно быть участником поездки");
@@ -56,58 +59,58 @@ public class PlannedExpanseServiceImpl implements PlannedExpenseService {
     }
 
     @Override
-    public PlannedExpenseDto createExpense(Long tripId, Long userId, PlannedExpenseDto expenseDto) {
+    public PlannedExpenseResponse createExpense(Long tripId, Long userId, PlannedExpenseRequest expenseDto) {
         if (!tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
                 (tripId, userId, List.of(TripParticipantStatus.ACCEPTED))) {
             throw new ForbiddenAccessException("Чтобы создать запланированный расход, вам нужно быть участником поездки");
         }
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException(tripId));
 
-        PlannedExpense expense = plannedExpenseMapper.mapExpenseDtoToExpense(expenseDto);
+        PlannedExpense expense = plannedExpenseMapper.mapExpenseDtoToExpense(expenseDto, trip);
         if (creationIsAvailable(tripId, expenseDto)) {
             log.info("{} Добавление расхода доступно", LocalDateTime.now());
-            expense = plannedExpenseRepository.save(expense);
-        } else {
-            throw new RuntimeException("Добавление расхода доступно");
-        }
-
-        if (plannedExpenseRepository.existsById(expense.getId())) {
-            log.info("{} Расход успешно сохранен", LocalDateTime.now());
+            plannedExpenseRepository.save(expense);
             return plannedExpenseMapper.mapExpenseToExpenseDto(expense);
         } else {
-            throw new RuntimeException("Ошибка при сохранении расхода");
-        }
-
-    }
-
-    @Override
-    public PlannedExpenseDto updateExpense(Long tripId, Long userId, Long expenseId, PlannedExpenseDto expenseDto) {
-        if(!plannedExpenseRepository.existsById(expenseId)) {
-            throw new PlannedExpenseNotFoundException(expenseId);
-        } else if (!tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
-                (tripId, userId, List.of(TripParticipantStatus.ACCEPTED))) {
-            throw new ForbiddenAccessException("Чтобы отредактировать запланированный расход, вам нужно быть участником поездки");
-        }
-
-        PlannedExpense oldExpense = plannedExpenseRepository.findById(expenseId).get();
-        plannedExpenseRepository.delete(oldExpense);
-        expenseDto.setId(expenseId);
-        PlannedExpense newExpense = plannedExpenseMapper.mapExpenseDtoToExpense(expenseDto);
-        PlannedExpense updatedExpense = plannedExpenseRepository.save(newExpense);
-
-        if(plannedExpenseRepository.existsById(updatedExpense.getId())) {
-            log.info("{} Расход успешно отредактирован", LocalDateTime.now());
-            return plannedExpenseMapper.mapExpenseToExpenseDto(updatedExpense);
-        } else {
-            throw new RuntimeException("Ошибка при редактировании расхода");
+            throw new PlannedExpenseException("Добавление расхода недоступно");
         }
     }
 
+//    @Override
+//    public PlannedExpenseDto updateExpense(Long tripId, Long userId, Long expenseId, PlannedExpenseRequest expenseDto) {
+//        if(!plannedExpenseRepository.existsById(expenseId)) {
+//            throw new PlannedExpenseNotFoundException(expenseId);
+//        } else if (!tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
+//                (tripId, userId, List.of(TripParticipantStatus.ACCEPTED))) {
+//            throw new ForbiddenAccessException("Чтобы отредактировать запланированный расход, вам нужно быть участником поездки");
+//        }
+//
+//        Trip trip = tripRepository.findById(tripId)
+//                .orElseThrow(() -> new TripNotFoundException(tripId));
+//        PlannedExpense oldExpense = plannedExpenseRepository.findById(expenseId)
+//                .orElseThrow(() -> new PlannedExpenseNotFoundException(expenseId));
+//        plannedExpenseRepository.delete(oldExpense);
+//        expenseDto.setId(expenseId);
+//        PlannedExpense newExpense = plannedExpenseMapper.mapExpenseDtoToExpense(expenseDto, trip);
+//        PlannedExpense updatedExpense = plannedExpenseRepository.save(newExpense);
+//
+//        if(plannedExpenseRepository.existsById(updatedExpense.getId())) {
+//            log.info("{} Расход успешно отредактирован", LocalDateTime.now());
+//            return plannedExpenseMapper.mapExpenseToExpenseDto(updatedExpense);
+//        } else {
+//            throw new PlannedExpenseException("Ошибка при редактировании расхода");
+//        }
+//    }
+
     @Override
-    public void deleteExpense(Long tripId, Long userId, Long expenseId) {
+    public void deleteExpense(Long userId, Long expenseId) {
+        PlannedExpense plannedExpense = plannedExpenseRepository.findById(expenseId)
+                .orElseThrow(() -> new PlannedExpenseNotFoundException(expenseId));
         if(!plannedExpenseRepository.existsById(expenseId)) {
             throw new PlannedExpenseNotFoundException(expenseId);
         } else if (!tripParticipantRepository.existsByTripIdAndUserIdAndStatusIn
-                (tripId, userId, List.of(TripParticipantStatus.ACCEPTED))) {
+                (plannedExpense.getTrip().getId(), userId, List.of(TripParticipantStatus.ACCEPTED))) {
             throw new ForbiddenAccessException("Чтобы удалить запланированный расход, вам нужно быть участником поездки");
         }
 
@@ -116,7 +119,7 @@ public class PlannedExpanseServiceImpl implements PlannedExpenseService {
     }
 
 
-    private boolean creationIsAvailable(Long tripId, PlannedExpenseDto expenseDto) {
+    private boolean creationIsAvailable(Long tripId, PlannedExpenseRequest expenseDto) {
         Double tripBudget = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(tripId)).getTotalBudget();
         Double expensesSum = plannedExpenseRepository.findAllByTripId(tripId).stream()
@@ -127,7 +130,7 @@ public class PlannedExpanseServiceImpl implements PlannedExpenseService {
         if ((expensesSum + expenseDto.getAmount()) <= tripBudget) {
             return true;
         } else {
-            throw new RuntimeException("Сумма расходов превышает бюджет поездки");
+            throw new PlannedExpenseException("Сумма расходов превышает бюджет поездки");
         }
     }
 }

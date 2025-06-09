@@ -24,6 +24,10 @@ public class PlannedExpense {
     @Column(nullable = false)
     private Double amount;
 
+    @ManyToOne
+    @JoinColumn(name = "trip_id", nullable = false)
+    private Trip trip;
+
     @Column(nullable = false)
     private ExpenseCategory category;
 
