@@ -2,8 +2,10 @@ package ru.tbank.itis.tripbackend.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 
 @Schema(description = "Запрос на аутентификацию пользователя")
+@Builder
 public record UserLoginRequest(
         @NotBlank(message = "Номер телефона обязателен")
         @Schema(description = "Номер телефона пользователя", example = "79999999999")

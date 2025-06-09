@@ -10,7 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.tbank.itis.tripbackend.dictionary.ForTripAndInvitationStatus;
 import ru.tbank.itis.tripbackend.dictionary.TripParticipantStatus;
 import ru.tbank.itis.tripbackend.dictionary.UserRole;
+import ru.tbank.itis.tripbackend.dto.TripInvitationDto;
 import ru.tbank.itis.tripbackend.exception.*;
+import ru.tbank.itis.tripbackend.mapper.TripInvitationMapper;
 import ru.tbank.itis.tripbackend.model.Trip;
 import ru.tbank.itis.tripbackend.model.TripInvitation;
 import ru.tbank.itis.tripbackend.model.TripParticipant;
@@ -19,6 +21,7 @@ import ru.tbank.itis.tripbackend.repository.TripInvitationRepository;
 import ru.tbank.itis.tripbackend.repository.TripParticipantRepository;
 import ru.tbank.itis.tripbackend.service.impl.InvitationServiceImpl;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,11 +43,17 @@ class InvitationServiceTest {
     @Mock
     private NotificationService notificationService;
 
+    @Mock
+    private TripInvitationMapper tripInvitationMapper;
+
     private User creator;
     private User invitedUser;
     private Trip trip;
     private TripInvitation invitation;
+    private TripInvitation activeInvitation;
+    private TripInvitation archivedInvitation;
     private TripParticipant participant;
+    private TripInvitationDto invitationDto;
 
     @BeforeEach
     void setUp() {
@@ -83,7 +92,78 @@ class InvitationServiceTest {
                 .user(invitedUser)
                 .status(TripParticipantStatus.PENDING)
                 .build();
+        activeInvitation = TripInvitation.builder()
+                .id(1L)
+                .trip(trip)
+                .inviter(creator)
+                .invitedUser(invitedUser)
+                .status(ForTripAndInvitationStatus.ACTIVE)
+                .build();
+
+        archivedInvitation = TripInvitation.builder()
+                .id(2L)
+                .trip(trip)
+                .inviter(creator)
+                .invitedUser(invitedUser)
+                .status(ForTripAndInvitationStatus.ARCHIVED)
+                .build();
+
+        participant = TripParticipant.builder()
+                .trip(trip)
+                .user(invitedUser)
+                .status(TripParticipantStatus.PENDING)
+                .build();
+
+        invitationDto = TripInvitationDto.builder()
+                .id(1L)
+                .tripId(100L)
+                .inviterId(1L)
+                .invitedUserId(2L)
+                .status("ACTIVE")
+                .build();
     }
+
+    @Test
+    @DisplayName("getUserInvitations — есть активные приглашения — возвращает список активных приглашений")
+    void getUserInvitations_withActiveInvitations_returnsActiveInvitations() {
+        when(tripInvitationRepository.findAllByInvitedUserIdAndStatus(2L, ForTripAndInvitationStatus.ACTIVE))
+                .thenReturn(List.of(activeInvitation));
+        when(tripInvitationMapper.toDto(activeInvitation)).thenReturn(invitationDto);
+
+        List<TripInvitationDto> result = invitationService.getUserInvitations(2L);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(1L);
+        assertThat(result.get(0).getStatus()).isEqualTo("ACTIVE");
+        verify(tripInvitationRepository).findAllByInvitedUserIdAndStatus(2L, ForTripAndInvitationStatus.ACTIVE);
+    }
+
+    @Test
+    @DisplayName("getUserInvitations — нет активных приглашений — возвращает пустой список")
+    void getUserInvitations_noActiveInvitations_returnsEmptyList() {
+        when(tripInvitationRepository.findAllByInvitedUserIdAndStatus(2L, ForTripAndInvitationStatus.ACTIVE))
+                .thenReturn(List.of());
+
+        List<TripInvitationDto> result = invitationService.getUserInvitations(2L);
+
+        assertThat(result).isEmpty();
+        verify(tripInvitationRepository).findAllByInvitedUserIdAndStatus(2L, ForTripAndInvitationStatus.ACTIVE);
+    }
+
+    @Test
+    @DisplayName("getUserInvitations — проверка фильтрации только активных приглашений")
+    void getUserInvitations_filtersOnlyActiveInvitations() {
+        when(tripInvitationRepository.findAllByInvitedUserIdAndStatus(2L, ForTripAndInvitationStatus.ACTIVE))
+                .thenReturn(List.of(activeInvitation));
+        when(tripInvitationMapper.toDto(activeInvitation)).thenReturn(invitationDto);
+
+        List<TripInvitationDto> result = invitationService.getUserInvitations(2L);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getStatus()).isEqualTo("ACTIVE");
+        verify(tripInvitationRepository).findAllByInvitedUserIdAndStatus(2L, ForTripAndInvitationStatus.ACTIVE);
+    }
+
 
     @Test
     @DisplayName("acceptInvitation — успешно принято приглашение — обновляет статус участника и архивирует приглашение")
