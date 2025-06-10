@@ -16,13 +16,6 @@
     <include file="2025-06-07-create-expense-table.xml" relativeToChangelogFile="true"/>
     <include file="2025-06-07-create-expense-participant-table.xml" relativeToChangelogFile="true"/>
     <include file="2025-06-09-create-planed-expense-table.xml" relativeToChangelogFile="true"/>
-
-<!--    <include file="2025-06-02-insert-user-table.xml" relativeToChangelogFile="true"/>-->
-<!--    <include file="2025-06-02-create-faq-table.xml" relativeToChangelogFile="true"/>-->
-<!--    <include file="2025-06-02-insert-faq-table.xml" relativeToChangelogFile="true"/>-->
-<!--    <include file="2025-06-02-create-company-table.xml" relativeToChangelogFile="true"/>-->
-<!--    <include file="2025-06-02-insert-company-table.xml" relativeToChangelogFile="true"/>-->
-<!--    <include file="2025-06-02-create-feedback-table.xml" relativeToChangelogFile="true"/>-->
-<!--    <include file="2025-06-02-insert-feedback-table.xml" relativeToChangelogFile="true"/>-->
+    <include file="2025-06-10-create-notification-table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
