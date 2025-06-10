@@ -12,22 +12,13 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 public interface NotificationMapper {
 
     @Mapping(source = "user.id", target = "userId")
-    @Mapping(source = "trip", target = "tripId", qualifiedByName = "tripToTripId")
+    @Mapping(source = "trip.id", target = "tripId")
     @Mapping(source = "read", target = "isRead")
     NotificationDto toDto(Notification notification);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "trip", source = "tripId", qualifiedByName = "tripIdToTrip")
+    @Mapping(target = "trip", ignore = true)
     Notification toEntity(NotificationDto notificationDto);
 
-    @Named("tripToTripId")
-    default Long tripToTripId(String trip) {
-        return trip != null ? Long.parseLong(trip) : null;
-    }
-
-    @Named("tripIdToTrip")
-    default String tripIdToTrip(Long tripId) {
-        return tripId != null ? tripId.toString() : null;
-    }
 }
