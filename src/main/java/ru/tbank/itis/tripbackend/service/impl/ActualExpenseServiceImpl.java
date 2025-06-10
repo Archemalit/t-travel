@@ -153,7 +153,7 @@ public class ActualExpenseServiceImpl implements ActualExpenseService {
         for (Expense expense : expenses) {
             for (ExpenseParticipant p : expense.getParticipants()) {
                 balanceMap.merge(p.getPaidBy().getId(), p.getAmount(), BigDecimal::add);
-                balanceMap.merge(p.getParticipant().getId(), p.getAmount().negate(), BigDecimal::add);
+                balanceMap.merge(p.getParticipant().getUser().getId(), p.getAmount().negate(), BigDecimal::add);
             }
         }
 

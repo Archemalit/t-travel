@@ -14,8 +14,10 @@ import ru.tbank.itis.tripbackend.exception.NotificationNotFoundException;
 import ru.tbank.itis.tripbackend.exception.UserNotFoundException;
 import ru.tbank.itis.tripbackend.mapper.NotificationMapper;
 import ru.tbank.itis.tripbackend.model.Notification;
+import ru.tbank.itis.tripbackend.model.Trip;
 import ru.tbank.itis.tripbackend.model.User;
 import ru.tbank.itis.tripbackend.repository.NotificationRepository;
+import ru.tbank.itis.tripbackend.repository.TripRepository;
 import ru.tbank.itis.tripbackend.repository.UserRepository;
 import ru.tbank.itis.tripbackend.service.impl.NotificationServiceImpl;
 
@@ -33,6 +35,8 @@ class NotificationServiceTest {
 
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private TripRepository tripRepository;
 
     @Mock
     private FirebaseMessaging firebaseMessaging;
@@ -44,6 +48,7 @@ class NotificationServiceTest {
     private NotificationServiceImpl notificationService;
 
     private User user;
+    private Trip trip;
     private Notification notification;
     private NotificationDto notificationDto;
 
@@ -53,9 +58,13 @@ class NotificationServiceTest {
         user.setId(1L);
         user.setDeviceToken("device-token");
 
+        trip = new Trip();
+        trip.setId(1L);
+
         notification = new Notification();
         notification.setId(1L);
         notification.setUser(user);
+        notification.setTrip(trip);
 
         notificationDto = new NotificationDto();
         notificationDto.setId(1L);
@@ -82,6 +91,7 @@ class NotificationServiceTest {
     @Test
     void createAndSendNotification_shouldCreateAndSend() throws FirebaseMessagingException {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
         when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
         when(notificationMapper.toDto(notification)).thenReturn(notificationDto);
 
