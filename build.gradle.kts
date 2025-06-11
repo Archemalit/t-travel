@@ -2,7 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.4.3"
     id("io.spring.dependency-management") version "1.1.7"
-    id("jacoco")
+    jacoco
 }
 
 
@@ -29,6 +29,7 @@ dependencies {
 //    implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:1.33.0")
     implementation("org.liquibase:liquibase-core")
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("net.logstash.logback:logstash-logback-encoder:8.1")
     implementation ("io.micrometer:micrometer-registry-prometheus")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -55,13 +56,28 @@ tasks.withType<Test> {
 }
 
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = "0.8.10" // актуальная версия
+}
+
+tasks.test {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport) // чтобы отчет создавался после тестов
 }
 
 tasks.jacocoTestReport {
+    dependsOn(tasks.test) // чтобы сначала запускались тесты
+
     reports {
-        html.required.set(true)
+        xml.required.set(true)
         csv.required.set(false)
-        xml.required.set(false)
+        html.required.set(true) // читаемый HTML-отчет
     }
+
+    classDirectories.setFrom(
+            fileTree("${buildDir}/classes/java/main").exclude(
+                    "ru/tbank/itis/tripbackend/mapper/**",
+                    "ru/tbank/itis/tripbackend/security/**",
+                    "ru/tbank/itis/tripbackend/handler/**"
+            )
+    )
 }
