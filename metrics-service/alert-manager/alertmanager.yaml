@@ -4,7 +4,7 @@ route:
 receivers:
   - name: 'telegram'
     telegram_configs:
-      - bot_token: 7837423027:AAEzdeYJ5knUfLCJd6m_ukJJvonYUqmmdog
+      - bot_token: TELEGRAM_BOT_TOKEN
         api_url: https://api.telegram.org
-        chat_id: -4942068835
+        chat_id: TELEGRAM_CHAT_ID
         parse_mode: ''
