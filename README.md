@@ -1,31 +1,57 @@
-# Getting Started
+# Сервис совместных поездок
 
-### Reference Documentation
+-----------
 
-For further reference, please consider the following sections:
+## Цель проекта
 
-* [Official Gradle documentation](https://docs.gradle.org)
-* [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/3.4.4/gradle-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/3.4.4/gradle-plugin/packaging-oci-image.html)
-* [Spring Data JPA](https://docs.spring.io/spring-boot/3.4.4/reference/data/sql.html#data.sql.jpa-and-spring-data)
-* [Spring Security](https://docs.spring.io/spring-boot/3.4.4/reference/web/spring-security.html)
-* [Spring Web](https://docs.spring.io/spring-boot/3.4.4/reference/web/servlet.html)
+Создание серсиса, с возможностями совместной организации поездок, ведения общего бюджета и разделения расходов между участниками. Проект состоит из двух частей:
 
-### Guides
+- Backend (`Spring Boot (Java)` )
+- Frontend (мобильное приложение, разработанное под платоформы `IOS` и `Android` )
 
-The following guides illustrate how to use some features concretely:
+------
 
-* [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
-* [Securing a Web Application](https://spring.io/guides/gs/securing-web/)
-* [Spring Boot and OAuth2](https://spring.io/guides/tutorials/spring-boot-oauth2/)
-* [Authenticating a User with LDAP](https://spring.io/guides/gs/authenticating-ldap/)
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
+## Архитектура проекта
 
-### Additional Links
+![image-20250611152119371](/Users/arsendivirov/Library/Application Support/typora-user-images/image-20250611152119371.png)
 
-These additional references should also help you:
+------
 
-* [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
+## Реализованная функциональность
 
+1. **Создание совместной поездки:**
+    - Пользователь создаёт поездку (например: «Отпуск в Сочи, 15–22 июня»).
+    - Добавляет других участников поездки (контакты или по номеру телефона).
+    - Участники подтверждают своё участие в поездке.
+
+2. **Совместное планирование расходов:**
+    - Общий бюджет поездки (например, 100 000 ₽).
+    - Возможность распределить бюджет по категориям
+    - Участники видят общий бюджет и могут добавлять траты, которые учитываются в общем бюджете.
+3. **Учёт и разделение расходов:**
+    - Участники добавляют фактические расходы (например, «Билеты на самолёт — 40 000 ₽»).
+    - Возможность указать, кто именно оплатил и за кого (например, «Иван заплатил за всех участников» или «Ольга оплатила только за себя и Марию»).
+    - Автоматический подсчёт: кто сколько потратил и кто кому должен после окончания поездки.
+4. **Уведомления и коммуникация:**
+    - Push-уведомления участникам поездки о новых расходах, изменении бюджета или статусе.
+    - Возможность отправки простых напоминаний («Алексей, добавьте свой чек за кафе»).
+
+-----
+
+## Стек технологий
+
+1. Spring Boot
+2. Spring Data JPA
+3. Spring Security
+4. Redis
+5. PostgreSQL
+6. Liquibase
+7. Swagger
+8. Docker
+-----
+
+## Структура базы данных
+
+![image-20250617124742597](/Users/arsendivirov/Library/Application Support/typora-user-images/image-20250617124742597.png)
+
+-----
