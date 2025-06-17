@@ -13,7 +13,8 @@
 
 ## Архитектура проекта
 
-![image-20250611152119371](/Users/arsendivirov/Library/Application Support/typora-user-images/image-20250611152119371.png)
+
+![image](https://downloader.disk.yandex.ru/preview/fafe4672025075ada6c3fefd82810a11689895dfe89d7083855b75cd9ef1b8ac/68517da4/s_2lZ8Iq2jZdXdulKuiTfNK7cCGyuaKDAkAFvg9uY1STERC4j_DXgiwn1MF4JP9sSi0P6h44J6qeTOuVqa8BCg%3D%3D?uid=0&filename=image-20250611152119371.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&owner_uid=0&tknv=v3&size=3024x1654)
 
 ------
 
@@ -52,6 +53,6 @@
 
 ## Структура базы данных
 
-![image-20250617124742597](/Users/arsendivirov/Library/Application Support/typora-user-images/image-20250617124742597.png)
+![image](https://downloader.disk.yandex.ru/preview/2ba4db042a2ae26bd30240e31edecdbf9148ce3a67691d8e0eb14a0185498ed0/68517e43/55_letwZFHZNAfFc9YwMMKA-c1ivTzdb6O7YLwW3t2IV5ew1Sb0RS2zeu7vaE96-hNO7CSP1QeyAQFqqHHLPEg%3D%3D?uid=0&filename=image-20250617124742597.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&owner_uid=0&tknv=v3&size=2048x2048)
 
 -----
