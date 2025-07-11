@@ -13,7 +13,9 @@
 
 ## Архитектура проекта
 
-<img width="1029" height="587" alt="image" src="https://github.com/user-attachments/assets/89c46f48-6b88-4a30-a0e9-f3791568055d" />
+<img width="1078" height="607" alt="image" src="https://github.com/user-attachments/assets/2c2b8212-29a5-4901-a204-9d56073a6581" />
+
+
 ------
 
 ## Реализованная функциональность
