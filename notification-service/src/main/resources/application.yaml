@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: notification-service
+
+server:
+  port: 8081
+
+kafka:
+  consumer:
+    bootstrap-servers: localhost:9092
+    group-id: notification
+    auto-offset-reset: earliest
+    max-poll-interval-ms: 300_000
+    enable-auto-commit: false
+    concurrency: 1
+  producer:
+    bootstrap-servers: localhost:9092
+    client-id: notification
+    acks-mode: 0
+    delivery-timeout: 60s
+    linger-ms: 1_000
+    batch-size: 100_000
+  topic:
+    name: trip.notification.in
+    partitions: 1
+    replicas: 1

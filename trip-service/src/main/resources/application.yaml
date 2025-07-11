@@ -1,8 +1,12 @@
 spring:
+  profiles:
+    active: dev
   application:
-    name: trip-backend
+    name: trip-service
+  config:
+    import: optional:file:.env.local[.properties]
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://postgres:5432/postgres}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5732/postgres}
     username: ${DATABASE_USERNAME:user}
     password: ${DATABASE_PASSWORD:pass}
     driver-class-name: org.postgresql.Driver
@@ -11,20 +15,16 @@ spring:
     change-log: ./migrations/master.xml
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     open-in-view: false
     show-sql: true
-  data:
-    redis:
-      host: redis
-      port: 6379
+  redis:
+    host: redis
+    port: 6379
 
 logging:
-  structured:
-    format:
-      file: ecs
-  file:
-    name: logs/app.json
+  level:
+    root: debug
 
 server:
   port: 8080
@@ -33,6 +33,7 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui
+  override-with-generic-response: false
 
 jwt:
   secret: ${JWT_SECRET:secret}
@@ -55,3 +56,11 @@ management:
     metrics:
       export:
         enabled: true
+
+#otel:
+#  exporter:
+#    otlp:
+#      endpoint: http://localhost:4317
+#  resource:
+#    attributes:
+#      service.name: your-service-name

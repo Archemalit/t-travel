@@ -7,7 +7,7 @@ filebeat.inputs:
       keys_under_root: true
       overwrite_keys: true
     paths:
-      - /var/logs/*.log
+      - /var/logs/app.log
     scan_frequency: 10s
     type: log
 output.logstash:

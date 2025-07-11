@@ -1,0 +1,26 @@
+{
+  "type": "record",
+  "name": "NotificationRequest",
+  "namespace": "ru.tbank.itis.notificationservice.dto.request",
+  "fields": [
+    {"name": "deviceToken", "type": "string"},
+    {
+      "name": "type",
+      "type": {
+        "type": "enum",
+        "name": "NotificationType",
+        "namespace": "ru.tbank.itis.notificationservice.dictionary",
+        "symbols": [
+          "TRIP_INVITATION",
+          "TRIP_INVITATION_RESPONSE",
+          "NEW_EXPENSE",
+          "DEBT_REMINDER",
+          "TRIP_UPDATED",
+          "PAYMENT_RECEIVED"
+        ]
+      }
+    },
+    {"name": "message", "type": "string"},
+    {"name": "isRead", "type": "boolean"}
+  ]
+}

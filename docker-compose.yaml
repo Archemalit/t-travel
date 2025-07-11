@@ -4,6 +4,8 @@ services:
   elasticsearch:
     image: elasticsearch:7.14.0
     container_name: elasticsearch
+    profiles:
+      - full
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -21,6 +23,8 @@ services:
   logstash:
     image: logstash:7.14.0
     container_name: logstash
+    profiles:
+      - full
     ports:
       - "5044:5044"
       - "9600:9600"
@@ -33,6 +37,8 @@ services:
   kibana:
     image: kibana:7.14.0
     container_name: kibana
+    profiles:
+      - full
     ports:
       - "5601:5601"
     volumes:
@@ -43,6 +49,8 @@ services:
   filebeat:
     image: elastic/filebeat:7.14.0
     container_name: filebeat
+    profiles:
+      - full
     user: root
     command: [ "filebeat", "-e", "--strict.perms=false" ]
     volumes:
@@ -65,6 +73,8 @@ services:
     restart: always
   redis-commander:
     image: rediscommander/redis-commander:latest
+    profiles:
+      - dev
     ports:
       - "8081:8081"
     environment:
@@ -74,8 +84,6 @@ services:
   prometheus:
     image: prom/prometheus:v2.46.0
     container_name: prometheus
-    #    profiles:
-    #      - full
     ports:
       - "9090:9090"
     volumes:
@@ -87,8 +95,6 @@ services:
   grafana:
     image: grafana/grafana:10.0.3
     container_name: grafana
-    #    profiles:
-    #      - full
     ports:
       - "3000:3000"
     volumes:
@@ -99,8 +105,6 @@ services:
   alertmanager:
     image: prom/alertmanager:v0.25.0
     container_name: alertmanager
-    #    profiles:
-    #      - full
     ports:
       - "9093:9093"
     volumes:
@@ -109,12 +113,60 @@ services:
     command: --config.file=/config/alertmanager.yaml --log.level=debug
   #    depends_on:
   #      - trip
+  kafka:
+    image: confluentinc/cp-server:7.2.1
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9997:9997"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_HOSTNAME: kafka
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8082:8080"
+    environment:
+      DYNAMIC_CONFIG_ENABLED: true
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.2.1
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  schema-registry:
+    image: confluentinc/cp-schema-registry:latest
+    depends_on:
+      - kafka
+    ports:
+      - 8083:8083
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'PLAINTEXT://kafka:29092'
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8083
   trip:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: trip
+      dockerfile: trip/Dockerfile
     profiles:
-      - full
+      - fulll
     container_name: trip
     restart: always
     #    env_file:
